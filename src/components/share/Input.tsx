@@ -63,20 +63,24 @@ const Input: React.FC<InputProps> = ({
 
     
   }
-
+  
   const [inputState, dispatch] = useReducer(inputReducer, {
     value:  initValue || '',
     isTouched: false, 
     isValid: !blur || false
     // If want to blur, meaning no content yet, meaning valid should be false
   })
-  const { value, isValid, isTouched } = inputState
   
-
+  const { value, isValid, isTouched } = inputState
+ 
   useEffect(() => {
+    
     onInput(id, value, isValid)
   }, [id, value, isValid, onInput])
- 
+  // useEffect(() => {
+  //   onInput(id, value, isValid)
+  //   console.log(initValue)
+  // }, [initValue])
   
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch({ 

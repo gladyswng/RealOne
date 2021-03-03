@@ -8,14 +8,15 @@ export const useImageUpload = (image?: string) => {
   const [previewUrl, setPreviewUrl] = useState<string>()
 
   const [isValid, setIsValid] = useState(false)
+  
 
   useEffect(() => {
   if (image) {
-    console.log(image)
+    
     setPreviewUrl(image)
   }
-  }, [])
-  console.log(previewUrl)
+  }, [image])
+  // console.log(previewUrl)
 
   // Generate a preview whenever theres a new file
   useEffect(()=> {
@@ -34,7 +35,7 @@ export const useImageUpload = (image?: string) => {
       console.log(err)
     }, async () => {
       if (previewUrl) {
-        console.log(previewUrl)
+        // console.log(previewUrl)
         await projectStorage.refFromURL(previewUrl).delete()
       }
       const url = await storageRef.getDownloadURL()

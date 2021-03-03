@@ -63,7 +63,7 @@ useEffect(() => {
     if (e?.target.files && e.target.files.length === 1) {
       pickedFile = e.target.files[0]
 
-      console.log(pickedFile)
+      // console.log(pickedFile)
       setFile(pickedFile)
       setIsValid(true) // wont update immediately state value
       fileIsValid = true

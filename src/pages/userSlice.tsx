@@ -38,7 +38,7 @@ export const login = createAsyncThunk('user/login',
       await auth.signInWithEmailAndPassword(email, password)
       const userDoc = await userRef.doc(email).get()
       const user = userDoc.data()
-      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('user', JSON.stringify(user.email))
       
       return user
     } catch (e) {
@@ -60,41 +60,55 @@ export const logout = createAsyncThunk('user/logout',
 ) 
 
 
-
 export const updateUser = createAsyncThunk('user/update', async ({ name, image, email } : IUser) => {
+  
   const userRef: any = projectFirestore.collection('users')
-  try {
-      // const userDoc = await userRef.doc(email).get()
 
+  try {
     await userRef.doc(email).update({ name, image })
+    const updatedUser = { name, image, email }
+    return updatedUser
+
      
     } catch (e) {
       console.log(e.message)
     }
 })
 
+export const retrieveUser = createAsyncThunk('user/retrieve', async ({email}: {email:string}) => {
 
+  const userRef: any = projectFirestore.collection('users')
+  const userDoc = await userRef.doc(email).get()
+  const user = userDoc.data()
+
+  return user
+})
 export const userSlice = createSlice({
   name: 'post',
   initialState,
   reducers: {
-    // addPost: (state, action: PayloadAction<IPost>) => {
-    //   state.posts.push(action.payload)
-    // },
-
+   
   },
   extraReducers: builder => {
     builder.addCase(login.fulfilled, (state, action) => {
       state.user = action.payload
     })
-    .addCase(logout.fulfilled, (state) => {
-      state.user = null
+    .addCase(retrieveUser.fulfilled, (state, action) => {
+      state.user = action.payload
     })
+    .addCase(updateUser.fulfilled, (state, action) => {
+      // Is this right?
+      if (!action.payload) {
+        return
+      }
+      state.user = action.payload
+    })
+
 
   }
 });
 
-// export const { addPost } = userSlice.actions;
+export const {  } = userSlice.actions;
 
 
 

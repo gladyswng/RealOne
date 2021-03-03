@@ -4,7 +4,9 @@ import { ReactComponent as AlertIcon } from '../../svg/alert.svg'
 import { ReactComponent as MenuIcon } from '../../svg/menu.svg'
 import { ReactComponent as CloseIcon } from '../../svg/close.svg'
 import { Link } from 'react-router-dom'
-
+import { useSelector } from 'react-redux'
+import { selectUser } from '../../pages/userSlice'
+import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
 
 
 interface NavbarProps {
@@ -12,6 +14,9 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
+
+  const user = useSelector(selectUser)
+  console.log(user)
     return (
       <nav className="bg-blue-500">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
@@ -29,7 +34,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
               <div className="hidden sm:block sm:ml-6">
                 <div className="flex space-x-4">
                   
-                  <a href="#" className="bg-blue-900 text-white px-3 py-2 rounded-md text-sm font-medium">Feed</a>
+                  <Link to="/home" className="bg-blue-900 text-white px-3 py-2 rounded-md text-sm font-medium">Feed</Link>
                   <a href="#" className="btn-blue text-sm ">Topics</a>
                   <a href="#" className="btn-blue text-sm ">Saved</a>
                   <a href="#" className="btn-blue text-sm ">Message</a>
@@ -61,9 +66,10 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             
               <div className="ml-3 relative">
                 <div>
-                  <Link to="/profile" className="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu" aria-haspopup="true">
+                  <Link to="/profile" className="bg-gray-800 flex text-blue-500 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu" aria-haspopup="true">
                     <span className="sr-only">Open user menu</span>
-                    <img className="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1525382455947-f319bc05fb35?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1628&q=80" alt="" />
+                    {user?.image ? <img className="h-8 w-8 rounded-full object-cover" src={user.image} alt="" /> : <ProfileIcon className="w-8 fill-current"/>}
+
                   </Link>
                 </div>
                 

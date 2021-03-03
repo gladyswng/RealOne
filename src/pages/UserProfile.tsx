@@ -17,7 +17,7 @@ const UserProfile: React.FC<UserProfileProps> = ({}) => {
   const user = useSelector(selectUser) 
   
   // const [ imageUrl, setImageUrl ] = useState<string>()
-  const { file, previewUrl, pickedHandler } = useImageUpload(user?.image)
+  const {  previewUrl, pickedHandler } = useImageUpload(user?.image)
 
 
   const [formState, inputHandler, setFormData] = useForm({
@@ -34,14 +34,24 @@ const UserProfile: React.FC<UserProfileProps> = ({}) => {
     {})
 
   const { inputs, isValid } = formState
-  console.log(inputs.name)
+
+
+
+  // Do i actually need this useEffect to retrieve user name?
   // useEffect(() => {
-  //   if (!user || !user.image) {
+  //   if (!user) {
   //     return
   //   }
-  //   setImageUrl(user.image)
+  //   console.log('tried set' + user.name,)
+   
+  //   setFormData({
+  //     name: {
+  //       value: user.name,
+  //       isValid: true
+  //     }
+  //   }, true, {})
     
-  // }, [user?.image, previewUrl])
+  // }, [user?.name, setFormData])
  
   const submitHandler = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -62,7 +72,7 @@ const UserProfile: React.FC<UserProfileProps> = ({}) => {
     <div className="space-y-1 text-center">
       
 
-      <form className="mt-8 space-y-6 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8  max-w-md m-auto" action="#" onSubmit={submitHandler}>
+      {user && <form className="mt-8 space-y-6 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8  max-w-md m-auto" action="#" onSubmit={submitHandler}>
 
       <div className="flex text-sm text-gray-600">
         <label htmlFor="file-upload" className="cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none text-center m-auto py-2">
@@ -84,16 +94,17 @@ const UserProfile: React.FC<UserProfileProps> = ({}) => {
               
                 
         <label htmlFor="name" className="sr-only">Name</label>
-        <Input 
-        classes="sm:text-sm form-input rounded-md pb-4 w-full" 
-        blur={false} 
-        id="name"  
-        type="text" 
-        error="Invalid name"
-        initValue={inputs.name.value}
-        onInput={inputHandler} 
-        placeholder="Name" 
-        validators={[VALIDATOR_REQUIRE()]}/>
+        
+         <Input 
+          classes="sm:text-sm form-input rounded-md pb-4 w-full" 
+          blur={false} 
+          id="name"  
+          type="text" 
+          error="Invalid name"
+          initValue={user.name}
+          onInput={inputHandler} 
+          placeholder="Name" 
+          validators={[VALIDATOR_REQUIRE()]}/>
       </div>
 
       <button type="submit" className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50" disabled={!isValid}>
@@ -101,7 +112,7 @@ const UserProfile: React.FC<UserProfileProps> = ({}) => {
       </button>
 
       </form>
-      
+      }
       
 
     </div>

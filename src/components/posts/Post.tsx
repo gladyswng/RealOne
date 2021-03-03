@@ -29,7 +29,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <div className="flex justify-between w-full">
                 <div className="flex items-center">
                   <button className="bg-gray-100 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-white" id="user-menu" aria-haspopup="true">
-                    {post.author.image?<img className="h-8 w-8 rounded-full" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
+                    {post.author.image?<img className="h-8 w-8 rounded-full object-cover" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
                   </button>
                   <span className="text-gray-600 pl-2">{post.author.name}</span>
                 </div>
