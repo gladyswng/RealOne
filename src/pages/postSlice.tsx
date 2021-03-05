@@ -74,11 +74,42 @@ export const addPost = createAsyncThunk('posts/addPost', async ({ text, author, 
   // const author = await userRef.get().data()
   const postRef = projectFirestore.collection('posts')
   const userRef = projectFirestore.doc(`users/${author.email}`)
+  
   postRef.add({ text, image, createdAt, author: userRef, comments: 0 })
   
 
     
 })
+
+export const deletePost = createAsyncThunk('posts/deletePost', async ({post } : {post: IPost}) => {
+
+  
+  const postRef = projectFirestore.collection('posts').doc(post.id)
+  const commentRef =  projectFirestore.collection('comments')
+
+
+  if (post.comments > 0) {
+    console.log('before delete')
+    const comments = await commentRef.where("post", "==", post.id).get()
+    
+    const batch = projectFirestore.batch()
+    comments.forEach(doc => {
+      console.log(doc.data())
+      batch.delete(doc.ref)
+    })
+    batch.commit()
+    
+  }
+  if (post.image) {
+
+    await projectStorage.refFromURL(post.image).delete()
+  }
+  await postRef.delete() 
+
+  return post.id
+      
+})
+
 
 export const postSlice = createSlice({
   name: 'post',
@@ -103,6 +134,10 @@ export const postSlice = createSlice({
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       
       state.posts = action.payload
+    })
+    .addCase(deletePost.fulfilled, (state, action) => {
+    
+      state.posts = state.posts.filter(post => post.id !== action.payload)
     })
     // .addCase(addPost.fulfilled, (state, action) => {
     //   state.posts.push(action.payload)

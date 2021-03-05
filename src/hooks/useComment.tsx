@@ -32,7 +32,7 @@ export const useComment = () => {
 
 
 
-  const fetchComments = useCallback(async (postId: string) => {
+  const fetchComments = async (postId: string) => {
     let commentList: any[] = []
     const collectionRef = projectFirestore.collection('comments')
     
@@ -52,9 +52,9 @@ export const useComment = () => {
     await Promise.all(result)
     
     setCommentList(commentList)
-  },[])
+  }
   
-  const addComment = useCallback(async ({ text, author, postId } :ICommentOnAdd) => {
+  const addComment = async ({ text, author, postId } :ICommentOnAdd) => {
     const createdAt = timestamp()
     const userRef= projectFirestore.collection('users').doc(author.email)
     const postRef = projectFirestore.collection('posts').doc(postId)
@@ -69,16 +69,16 @@ export const useComment = () => {
     // return comment
     setCommentList([...commentList, comment])
 
-  },[])
+  }
 
-  const deleteComment = useCallback(async (id: string, postId: string) => {
+  const deleteComment = async (id: string, postId: string) => {
     const commentRef = projectFirestore.collection('comments').doc(id)
     const postRef = projectFirestore.collection('posts').doc(postId)
     await commentRef.delete() 
-     await postRef.update({ comments: increment(-1)})
+    await postRef.update({ comments: increment(-1)})
    
     setCommentList(commentList.filter(comment => comment.id !== id))
-  },[])
+  }
 
   // return [commentList, fetchComments, addComment] as const
   return { commentList, fetchComments, addComment, deleteComment }

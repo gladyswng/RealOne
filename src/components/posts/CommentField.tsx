@@ -31,7 +31,7 @@ const CommentField: React.FC<CommentFieldProps> = ({ postId, addComment, user })
     if (!comment || comment === '') {
       return
     }
-    console.log(user.email, comment, postId)
+
     addComment({ author:user, text: comment, postId })
     // dispatch(addComment({ author: user.email, text: comment, postId }))
     setComment('')
