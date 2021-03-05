@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { ReactComponent as AddImageIcon } from '../svg/addImage.svg'
+import { ReactComponent as PictureIcon } from '../svg/picture.svg'
+
 import { useImageUpload } from '../hooks/useImageUpload'
 
 import { projectFirestore, timestamp } from '../firebase/config'
@@ -58,11 +59,11 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
           <label className="block text-sm font-medium text-gray-700">
           </label>
           {previewUrl? <img src={previewUrl}/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5 md:rounded-t-md ">
-            <div className="space-y-1 text-center">
-              <AddImageIcon className="mx-auto h-12 w-12 text-gray-400"/>
+            <div className="space-y-1 text-center text-gray-400">
+              <PictureIcon className="mx-auto h-12 w-12 fill-current"/>
               
               <div className="flex text-sm text-gray-600">
-                <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                   <span>Upload an image</span>
                   <input 
                   id="file-upload" 

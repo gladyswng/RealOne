@@ -16,7 +16,7 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({}) => {
 
   const user = useSelector(selectUser)
-  console.log(user)
+  
     return (
       <nav className="bg-blue-500">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">

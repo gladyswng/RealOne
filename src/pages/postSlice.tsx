@@ -1,7 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk, RootState } from '../app/store';
-import PostList from '../components/posts/PostList';
+
 import { projectFirestore, projectStorage, timestamp, postsRef } from '../firebase/config'
+
+import { timeAgoCalculator } from '../util/timeAgoCalculator'
 
 interface IAuthor {
   name: string,
@@ -19,8 +21,9 @@ interface IPost {
   text: string
   image?: string
   createdAt: string
-  id?: string
+  id: string
   author: IAuthor
+  comments: number
 }
 
 
@@ -44,11 +47,13 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts',
     let postList: any[] = []
 
     const result =  (await (collectionRef.get())).docs.map(async doc => {
-      console.log(doc.data())
+
       const post = (doc.data())
       const author = await post.author.get()
       post.author = await author.data()
-      post.createdAt = await post.createdAt.toDate().toDateString()  
+      const time = await post.createdAt.toDate()  
+      post.createdAt = timeAgoCalculator(time)
+      // post.createdAt = await post.createdAt.toDate().toDateString()  
       post.id = doc.id
       postList=[...postList, post]
       await Promise.all(postList)
@@ -62,14 +67,14 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts',
 ) 
 
 export const addPost = createAsyncThunk('posts/addPost', async ({ text, author, image } : IPostOnAdd) => {
-  console.log(author)
+  
   // const { text, image } = post
   const createdAt = timestamp()
   // const userRef: any = projectFirestore.collection('users').doc(user)
   // const author = await userRef.get().data()
   const postRef = projectFirestore.collection('posts')
   const userRef = projectFirestore.doc(`users/${author.email}`)
-  postRef.add({ text, image, createdAt, author: userRef})
+  postRef.add({ text, image, createdAt, author: userRef, comments: 0 })
   
 
     
@@ -96,7 +101,7 @@ export const postSlice = createSlice({
   },
   extraReducers: builder => {
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
-      console.log(action.payload)
+      
       state.posts = action.payload
     })
     // .addCase(addPost.fulfilled, (state, action) => {

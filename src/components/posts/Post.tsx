@@ -1,26 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import { ReactComponent as HeartIcon } from '../../svg/heart.svg'
 import { ReactComponent as SaveIcon } from '../../svg/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
+import AutoTextArea from '../share/AutoTextArea'
+import Comment from './Comment'
 
 interface PostCardProps {
   post: {
     image?: string,
     text: string,
+    createdAt: string
     author: {
       image?: string,
       name: string,
       email: string
-    }
+    },
+    id: string
+    comments: number
   }
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
+
+
+
     return (
       <div>
 
-        <div className="max-w-md mx-auto bg-white sm:rounded-md shadow-md overflow-hidden my-6">
+        <div className="max-w-md mx-auto bg-white sm:rounded-md shadow-md my-6">
           <div className="">
             <div className="">
               {post.image && <img className=" h-60 md:h-72 w-full object-cover" src={post.image} alt="Post image" />}
@@ -49,12 +57,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <span className="tag-blue">#lifestyle</span>
               </div>
               <div className="flex justify-between w-full">
-                <p className="text-gray-500 text-sm mt-4">9 days ago</p>
+                <p className="text-gray-500 text-sm mt-4">{post.createdAt} ago</p>
 
-                <p className="pt-4 text-sm text-gray-700">6 comments</p>
+                <p className="pt-4 text-sm text-gray-700">{post.comments} {post.comments < 2 ? 'comment' : 'comments'}</p>
+                
 
               </div>
-            </div>
+                <Comment postId={post.id} postComments={post.comments}/>
+                
+              </div>
+
           </div>
         </div>
 

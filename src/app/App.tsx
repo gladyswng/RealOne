@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import Navbar from '../components/navbar/Navbar'
-import PostList from '../components/posts/PostList';
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import Login from '../pages/Login';
 import AddPost from '../pages/AddPost';
@@ -17,7 +16,7 @@ function App() {
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
     if (storedUser) {
-      console.log(storedUser)
+
       dispatch(retrieveUser({ email: storedUser}))   
     }
   },[])
@@ -29,9 +28,7 @@ function App() {
           
         </div>
         <Switch>
-          <Route exact path="/">
-            <PostList />
-          </Route>
+          
           <Route exact path="/home">
             <Home />
           </Route>
