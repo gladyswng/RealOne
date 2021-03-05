@@ -1,5 +1,6 @@
 import { timeStamp } from 'console'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { decrement } from '../components/counter/counterSlice'
 import { projectFirestore, projectStorage, timestamp, increment } from '../firebase/config'
 
 import { timeAgoCalculator } from '../util/timeAgoCalculator'
@@ -21,7 +22,7 @@ interface IComment {
   text: string
   image?: string
   createdAt: string
-  id?: string
+  id: string
   author: IAuthor
 }
 
@@ -31,7 +32,7 @@ export const useComment = () => {
 
 
 
-  const fetchComments = async (postId: string) => {
+  const fetchComments = useCallback(async (postId: string) => {
     let commentList: any[] = []
     const collectionRef = projectFirestore.collection('comments')
     
@@ -42,7 +43,7 @@ export const useComment = () => {
       comment.author = await author.data()
       const time = await comment.createdAt.toDate()
       comment.createdAt = timeAgoCalculator(time)
-
+      comment.id =  doc.id
       commentList = [...commentList, comment]
       await Promise.all(commentList)
       return commentList
@@ -51,9 +52,9 @@ export const useComment = () => {
     await Promise.all(result)
     
     setCommentList(commentList)
-  }
+  },[])
   
-  const addComment = async ({ text, author, postId } :ICommentOnAdd) => {
+  const addComment = useCallback(async ({ text, author, postId } :ICommentOnAdd) => {
     const createdAt = timestamp()
     const userRef= projectFirestore.collection('users').doc(author.email)
     const postRef = projectFirestore.collection('posts').doc(postId)
@@ -61,18 +62,26 @@ export const useComment = () => {
     await postRef.update({ comments: increment(1)})
     
     const commentAdded = commentRef.add({ post: postId, author:userRef, text, createdAt })
-    const commentId = (await commentAdded).id
-    console.log(commentId)
+    const id = (await commentAdded).id
     const time = timeAgoCalculator(new Date().getTime())
-    const comment = { post: postId, author, text, createdAt: time } 
+    const comment = { post: postId, author, text, createdAt: time, id } 
     // createdAt: 
     // return comment
     setCommentList([...commentList, comment])
 
-  }
+  },[])
+
+  const deleteComment = useCallback(async (id: string, postId: string) => {
+    const commentRef = projectFirestore.collection('comments').doc(id)
+    const postRef = projectFirestore.collection('posts').doc(postId)
+    await commentRef.delete() 
+     await postRef.update({ comments: increment(-1)})
+   
+    setCommentList(commentList.filter(comment => comment.id !== id))
+  },[])
 
   // return [commentList, fetchComments, addComment] as const
-  return { commentList, fetchComments, addComment }
+  return { commentList, fetchComments, addComment, deleteComment }
   
 
 }
