@@ -5,9 +5,9 @@ import { ReactComponent as SaveIcon } from '../../svg/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
 import { ReactComponent as RemoveIcon } from '../../svg/remove_filled.svg'
 import Comment from './Comment'
-import { selectUser } from '../../pages/userSlice'
+import { addUserLike, removeUserLike, selectUser } from '../../pages/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { deletePost } from '../../pages/postSlice'
+import { deletePost, addPostLike, removePostLike } from '../../pages/postSlice'
 
 interface PostCardProps {
   post: {
@@ -21,40 +21,59 @@ interface PostCardProps {
     },
     id: string
     comments: number
+    likes: number
+    tags?: string[]
   }
 }
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
+  const [ commentsShow, setCommnetsShow ] = useState<boolean>(false)
+  // const [ heart, setHeart ] = useState<boolean>()
+  const commentHandler = () => {
+    setCommnetsShow(!commentsShow)
+  }
+  if (user) console.log(user.likes)
 
-  // const postDeleteHandler = () => { 
+  const likeHandler = () => {
+    if(!user) {
+      return
+    }
+    if (!user.likes.includes(post.id)) {
+      
+      dispatch(addPostLike({post, user}))
+      dispatch(addUserLike(post.id))
+    } else {
+      dispatch(removePostLike({post, user}))
+      dispatch(removeUserLike(post.id))
+    }
 
-  // }
+  }
     return (
       <div>
 
         <div className="max-w-md mx-auto bg-white sm:rounded-md shadow-md my-6">
-          <div className="">
-            <div className="relative">
-              {post.image && <img className=" h-60 md:h-72 w-full object-cover" src={post.image} alt="Post image" />}
+        
+          <div className="relative">
+            {post.image && <img className=" h-60 md:h-72 w-full object-cover" src={post.image} alt="Post image" />}
 
-              {user && user.email ===post.author.email && <button className="flex-shrink-0 rounded-full focus:outline-none focus:ring-white absolute top-2 right-2" onClick={()=> {dispatch(deletePost({post: post}))}}>    
-              <span className="sr-only">Delete Comment</span>
-              <RemoveIcon className="h-7 fill-current bg-white rounded-full text-blue-500 "/></button>}
-            </div>
-            <div className="p-8 ">
-              <div className="flex justify-between w-full">
+            {user && user.email ===post.author.email && <button className="flex-shrink-0 rounded-full focus:outline-none focus:ring-white absolute top-2 right-2" onClick={()=> {dispatch(deletePost({post: post}))}}>    
+            <span className="sr-only">Delete Comment</span>
+            <RemoveIcon className="h-7 fill-current bg-white rounded-full text-blue-500 "/></button>}
+          </div>
+          <div className="p-8 ">
+            <div className="flex justify-between w-full">
                 <div className="flex items-center">
-                  <button className="bg-gray-100 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-white" id="user-menu" aria-haspopup="true">
-                    {post.author.image?<img className="h-8 w-8 rounded-full object-cover" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
+                  <button className="bg-gray-100 flex flex-shrink-0 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-white" id="user-menu" aria-haspopup="true">
+                    {post.author.image?<img className="h-8 w-8 rounded-full object-cover flex-shrink-0" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
                   </button>
                   <span className="text-gray-600 pl-2">{post.author.name}</span>
                 </div>
 
-                <div className="flex space-x-2">
-
-                  <div className="text-red-500"><HeartIcon /></div>
+                <div className="flex space-x-2 items-center">
+                  <span className="text-gray-700 text-sm">{post.likes} {post.likes > 1? 'likes': 'like'}</span>
+                  <button className={`${user?.likes.includes(post.id)? 'text-red-500' : 'text-gray-400'}`} onClick={likeHandler}><HeartIcon /></button>
                   <div className="text-blue-500"><SaveIcon /></div>
                 </div>
 
@@ -62,23 +81,27 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
               <p className="mt-2 text-gray-700 break-words">{post.text}</p>
 
-              <div className="mt-4 flex space-x-2">
-                <span className="tag-blue">#food</span>
-                <span className="tag-blue">#fashion</span>
-                <span className="tag-blue">#lifestyle</span>
-              </div>
+              {post.tags && 
+                (<div className="mt-4 flex space-x-2">
+                  {post.tags.map(tag => {
+                    return <span className="tag-blue">#{tag}</span>
+                  })}
+                </div>)}
               <div className="flex justify-between w-full">
                 <p className="text-gray-500 text-sm mt-4">{post.createdAt} ago</p>
 
-                <p className="pt-4 text-sm text-gray-700">{post.comments} {post.comments < 2 ? 'comment' : 'comments'}</p>
+                <button className="pt-4 text-sm text-gray-700 focus:text-blue-500 border-none focus-within:outline-none" onClick={commentHandler}>{post.comments} {post.comments < 2 ? 'comment' : 'comments'}</button>
                 
 
               </div>
+              <div hidden={!commentsShow}>
+
                 <Comment postId={post.id} postComments={post.comments}/>
-                
               </div>
+              
+            </div>
 
-          </div>
+       
         </div>
 
       </div>

@@ -22,8 +22,10 @@ const projectFirestore = firebase.firestore()
 const auth = firebase.auth()
 const timestamp = firebase.firestore.FieldValue.serverTimestamp
 const increment = firebase.firestore.FieldValue.increment
+const arrayUnion = firebase.firestore.FieldValue.arrayUnion
+const arrayRemove = firebase.firestore.FieldValue.arrayRemove
 // const databaseRef = firebase.database().ref()
 // export const postsRef = databaseRef.collection("posts")
 export const postsRef = firebase.firestore().collection('posts')
 
-export { projectStorage, projectFirestore, timestamp, increment, auth }
+export { projectStorage, projectFirestore, timestamp, increment, arrayUnion, arrayRemove, auth }

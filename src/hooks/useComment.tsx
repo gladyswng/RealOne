@@ -1,7 +1,9 @@
 import { timeStamp } from 'console'
 import { useCallback, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { decrement } from '../components/counter/counterSlice'
 import { projectFirestore, projectStorage, timestamp, increment } from '../firebase/config'
+import { addCommentCount, substractCommentCount } from '../pages/postSlice'
 
 import { timeAgoCalculator } from '../util/timeAgoCalculator'
 
@@ -28,6 +30,7 @@ interface IComment {
 
 //  { comment }: {comment: IComment}
 export const useComment = () => {
+  const dispatch = useDispatch()
   const [commentList, setCommentList] = useState<IComment[]>([])
 
 
@@ -67,8 +70,9 @@ export const useComment = () => {
     const comment = { post: postId, author, text, createdAt: time, id } 
     // createdAt: 
     // return comment
+  
     setCommentList([...commentList, comment])
-
+    dispatch(addCommentCount(postId))
   }
 
   const deleteComment = async (id: string, postId: string) => {
@@ -78,6 +82,7 @@ export const useComment = () => {
     await postRef.update({ comments: increment(-1)})
    
     setCommentList(commentList.filter(comment => comment.id !== id))
+    dispatch(substractCommentCount(postId))
   }
 
   // return [commentList, fetchComments, addComment] as const

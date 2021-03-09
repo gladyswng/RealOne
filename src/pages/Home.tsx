@@ -22,7 +22,7 @@ const Home: React.FC<HomeProps> = ({}) => {
 
     return (
       <div>
-        {posts.map(post => {
+        {posts && posts.map(post => {
           return <div key={post.id}>
            
 

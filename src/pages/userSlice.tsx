@@ -1,13 +1,24 @@
 
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk, RootState } from '../app/store';
-import { projectFirestore, timestamp, postsRef, auth } from '../firebase/config'
+import { projectFirestore, timestamp, postsRef, auth, projectStorage } from '../firebase/config'
 
 interface IUser {
   name: string
   email: string
   image?: string
+  likes: string[]
 }
+
+interface IUserUpdate {
+  name: string
+  email: string
+  image?: string
+  oldImage?: string 
+  likes: string[]
+}
+
+
 
 
 
@@ -60,13 +71,19 @@ export const logout = createAsyncThunk('user/logout',
 ) 
 
 
-export const updateUser = createAsyncThunk('user/update', async ({ name, image, email } : IUser) => {
+export const updateUser = createAsyncThunk('user/update', async (user:IUserUpdate) => {
+  //{ name, image, email, oldImage } : IUserUpdate
+  const { name, image, email, oldImage, likes } = user
   
   const userRef: any = projectFirestore.collection('users')
+  if (oldImage && image && oldImage !== image) {
+    await projectStorage.refFromURL(oldImage).delete()
+  }
 
   try {
+    
     await userRef.doc(email).update({ name, image })
-    const updatedUser = { name, image, email }
+    const updatedUser = { name, image, email, likes}
     return updatedUser
 
      
@@ -87,7 +104,15 @@ export const userSlice = createSlice({
   name: 'post',
   initialState,
   reducers: {
-   
+    addUserLike: (state, action) => {
+      state.user?.likes.push(action.payload)
+    },
+    removeUserLike: (state, action) => {
+      if (state.user) {
+
+        state.user.likes = state.user?.likes.filter(post => post !== action.payload)
+      }
+    }
   },
   extraReducers: builder => {
     builder.addCase(login.fulfilled, (state, action) => {
@@ -108,7 +133,7 @@ export const userSlice = createSlice({
   }
 });
 
-export const {  } = userSlice.actions;
+export const { addUserLike, removeUserLike } = userSlice.actions;
 
 
 

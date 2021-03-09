@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, TextareaHTMLAttributes } from "reac
 
 const AutoTextArea = (props: TextareaHTMLAttributes<HTMLTextAreaElement>) => {
 	const textAreaRef = useRef<HTMLTextAreaElement>(null)
-	const [text, setText] = useState("")
+	const [text, setText] = useState('')
 	const [textAreaHeight, setTextAreaHeight] = useState("auto")
 	const [parentHeight, setParentHeight] = useState("auto")
 
@@ -28,13 +28,14 @@ const AutoTextArea = (props: TextareaHTMLAttributes<HTMLTextAreaElement>) => {
     setText(e.target.value)
   }
 
+
 	return (
 		<div style={{ minHeight: parentHeight, width: '100%' }}>
 			<textarea
         {...props}
 				rows={1}
 				ref={textAreaRef}
-				style={{ height: textAreaHeight}}
+				style={{ height: textAreaHeight, minHeight: '36px' }}
         onChange={onChangeHandler}
 			/>
 		</div>

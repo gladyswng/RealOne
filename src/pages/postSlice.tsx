@@ -1,19 +1,21 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk, RootState } from '../app/store';
 
-import { projectFirestore, projectStorage, timestamp, postsRef } from '../firebase/config'
+import { projectFirestore, projectStorage, timestamp, increment, arrayUnion, arrayRemove } from '../firebase/config'
 
 import { timeAgoCalculator } from '../util/timeAgoCalculator'
 
-interface IAuthor {
+interface IUser {
   name: string,
-  email: string
+  email: string,
+  likes: string[]
 }
 
 interface IPostOnAdd {
   text: string
   image?: string
-  author: IAuthor
+  author: IUser
+  tags?: string[]
 }
 
 
@@ -22,19 +24,27 @@ interface IPost {
   image?: string
   createdAt: string
   id: string
-  author: IAuthor
+  author: {
+    name: string,
+    email: string
+  }
   comments: number
+  tags?: string[]
+  likes: number
+  
 }
 
 
 interface PostState {
-  posts: IPost[]
+  posts: IPost[],
+  topicPosts: IPost[],
   status: 'idle' | 'pending' | 'fulfilled' | 'rejected'
 }
 
 
 const initialState: PostState = {
   posts: [],
+  topicPosts: [],
   status: 'idle'
 };
 
@@ -66,7 +76,36 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts',
   }
 ) 
 
-export const addPost = createAsyncThunk('posts/addPost', async ({ text, author, image } : IPostOnAdd) => {
+export const fetchTopicPosts = createAsyncThunk('posts/fetchTopicPosts', 
+  async ({topic}: {topic: string}) => {
+ 
+    const collectionRef = projectFirestore.collection('posts')
+    // const collectionRef = await projectFirestore.collection('posts').get()
+    
+    let postList: any[] = []
+
+    const result =  (await (collectionRef.where('tags', 'array-contains', topic).get())).docs.map(async doc => {
+
+      const post = (doc.data())
+      
+      const author = await post.author.get()
+      post.author = await author.data()
+      const time = await post.createdAt.toDate()  
+      post.createdAt = timeAgoCalculator(time)
+      // post.createdAt = await post.createdAt.toDate().toDateString()  
+      post.id = doc.id
+      postList=[...postList, post]
+      await Promise.all(postList)
+      return postList
+    })
+
+    await Promise.all(result)
+    return postList
+
+  }
+) 
+
+export const addPost = createAsyncThunk('posts/addPost', async ({ text, author, image, tags } : IPostOnAdd) => {
   
   // const { text, image } = post
   const createdAt = timestamp()
@@ -75,29 +114,26 @@ export const addPost = createAsyncThunk('posts/addPost', async ({ text, author, 
   const postRef = projectFirestore.collection('posts')
   const userRef = projectFirestore.doc(`users/${author.email}`)
   
-  postRef.add({ text, image, createdAt, author: userRef, comments: 0 })
+  postRef.add({ text, image, createdAt, author: userRef, comments: 0, likes: 0, tags })
   
 
     
 })
 
 export const deletePost = createAsyncThunk('posts/deletePost', async ({post } : {post: IPost}) => {
-
   
   const postRef = projectFirestore.collection('posts').doc(post.id)
   const commentRef =  projectFirestore.collection('comments')
 
 
   if (post.comments > 0) {
-    console.log('before delete')
     const comments = await commentRef.where("post", "==", post.id).get()
-    
     const batch = projectFirestore.batch()
     comments.forEach(doc => {
-      console.log(doc.data())
+    
       batch.delete(doc.ref)
     })
-    batch.commit()
+    await batch.commit()
     
   }
   if (post.image) {
@@ -110,11 +146,56 @@ export const deletePost = createAsyncThunk('posts/deletePost', async ({post } : 
       
 })
 
+export const addPostLike = createAsyncThunk('posts/addLike', async ({post, user } : {post: IPost, user: IUser}) => {
+  const postRef = projectFirestore.collection('posts').doc(post.id)
+  const userRef = projectFirestore.collection('users').doc(user.email)
+  await postRef.update({ likes: increment(1)})
+  await userRef.update({ likes: arrayUnion(post.id) })
+  return post.id
+}
+)
+
+export const removePostLike = createAsyncThunk('posts/removeLike', async ({post, user } : {post: IPost, user: IUser}) => {
+  const postRef = projectFirestore.collection('posts').doc(post.id)
+  const userRef = projectFirestore.collection('users').doc(user.email)
+  await postRef.update({likes: increment(-1)})
+  await userRef.update({ likes: arrayRemove(post.id) })
+  return post.id
+})
+
+// export const toggleLikePost = createAsyncThunk('posts/likePost', async ({post, user } : {post: IPost, user: IUser}) => {
+//   const postRef = projectFirestore.collection('posts').doc(post.id)
+//   const userRef = projectFirestore.collection('users').doc(user.email)
+//   const liked = user.likes.includes(post.id)
+
+//   if (liked) {
+//     await postRef.update({likes: increment(-1)})
+//     await userRef.update({ likes: arrayRemove(post.id) })
+ 
+//   } else {
+
+//     await postRef.update({ likes: increment(1)})
+//     await userRef.update({ likes: arrayUnion(post.id) })
+//   }
+      
+// })
 
 export const postSlice = createSlice({
   name: 'post',
   initialState,
   reducers: {
+
+    addCommentCount: (state, action) => {
+      const postIndex = state.posts.findIndex(post => post.id === action.payload)
+      console.log(state.posts[postIndex].comments)
+      state.posts[postIndex].comments += 1
+    },
+
+    substractCommentCount: (state, action) => {
+      const postIndex = state.posts.findIndex(post => post.id === action.payload)
+      state.posts[postIndex].comments -= 1
+    }
+    
     // addPost: (state, action: PayloadAction<IPost>) => {
     //   // Redux Toolkit allows us to write "mutating" logic in reducers. It
     //   // doesn't actually mutate the state because it uses the Immer library,
@@ -142,11 +223,24 @@ export const postSlice = createSlice({
     // .addCase(addPost.fulfilled, (state, action) => {
     //   state.posts.push(action.payload)
     // })
+    .addCase(fetchTopicPosts.fulfilled, (state, action) => {
+   
+      state.topicPosts = action.payload
+    })
+    .addCase(addPostLike.fulfilled, (state, action) => {
+      const postIndex = state.posts.findIndex(post => post.id === action.payload)
+      state.posts[postIndex].likes += 1
+    })
+    .addCase(removePostLike.fulfilled, (state, action) => {
+      const postIndex = state.posts.findIndex(post => post.id === action.payload)
+      state.posts[postIndex].likes -= 1
+    })
+
 
   }
 });
 
-export const {  } = postSlice.actions;
+export const { substractCommentCount, addCommentCount } = postSlice.actions
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
@@ -165,5 +259,6 @@ export const {  } = postSlice.actions;
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
 export const selectPost = (state: RootState) => state.post.posts;
+export const selectTopicPost = (state: RootState) => state.post.topicPosts;
 
 export default postSlice.reducer;

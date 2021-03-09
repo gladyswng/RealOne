@@ -14,12 +14,11 @@ const Comment: React.FC<CommentProps> = ({ postId, postComments}) => {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
   // const commentList = useSelector(selectComments)
-  const [ commentsShow, setCommnetsShow ] = useState<boolean>(false)
-  const [ comment, setComment ]= useState<string>()
+  
+  
   
   const {  commentList, fetchComments, addComment, deleteComment} = useComment()
 
-  console.log(commentList)
   
   useEffect(() => {
     // console.log(postId)
@@ -63,7 +62,7 @@ const Comment: React.FC<CommentProps> = ({ postId, postComments}) => {
               </button>
               <div className="pl-2 ">
                 <span className="text-gray-800 whitespace-nowrap font-medium">{comment.author.name}</span>
-                <span className="ml-2">{comment.text}</span>
+                <span className="ml-2 break-all">{comment.text}</span>
                 <p className="text-gray-800 text-xs pt-1">{comment.createdAt} ago</p>
 
               </div>

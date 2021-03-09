@@ -35,7 +35,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
                 <div className="flex space-x-4">
                   
                   <Link to="/home" className="bg-blue-900 text-white px-3 py-2 rounded-md text-sm font-medium">Feed</Link>
-                  <a href="#" className="btn-blue text-sm ">Topics</a>
+                  <Link to="/topics" href="#" className="btn-blue text-sm ">Topics</Link>
                   <a href="#" className="btn-blue text-sm ">Saved</a>
                   <a href="#" className="btn-blue text-sm ">Message</a>
                 </div>
@@ -87,7 +87,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             <div className="px-2 pt-2 pb-3 space-y-1">
               
               <Link to="/home" className="bg-blue-900 text-white block px-3 py-2 rounded-md text-base font-medium">Feed</Link>
-              <a href="#" className="btn-blue block">Topics</a>
+              <Link to="/topics" className="btn-blue block">Topics</Link>
               <a href="#" className="btn-blue block">Saved</a>
               <a href="#" className="btn-blue block">Message</a>
               

@@ -50,7 +50,7 @@ const AddUser: React.FC<AddUserProps> = ({}) => {
       //   return
       // } else {
       try {
-        await userRef.doc(inputs.email.value).set({ name: inputs.name.value, email: inputs.email.value })
+        await userRef.doc(inputs.email.value).set({ name: inputs.name.value, email: inputs.email.value, likes: [] })
         await auth.createUserWithEmailAndPassword(inputs.email.value, inputs.password.value)
 
       } catch (e) {

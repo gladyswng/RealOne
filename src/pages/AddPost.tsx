@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { ReactComponent as PictureIcon } from '../svg/picture.svg'
-
+import { ReactComponent as AddIcon } from '../svg/add_filled.svg'
+import { ReactComponent as RemoveIcon } from '../svg/remove.svg'
 import { useImageUpload } from '../hooks/useImageUpload'
 
 import { projectFirestore, timestamp } from '../firebase/config'
@@ -11,18 +12,23 @@ import {
 import {
   selectUser,
 } from './userSlice';
+import { useHistory } from 'react-router-dom'
 
 interface AddPostProps {
 
 }
 
 const AddPost: React.FC<AddPostProps> = ({}) => {
+  const history = useHistory()
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
+
 
   const { file, previewUrl, pickedHandler } = useImageUpload()
 
   const [ inputValue, setInputValue ] = useState<string>()
+  const [ tagValue, setTagValue ] = useState<string>()
+  const [ tagList, setTagList ] = useState<string[]>([])
   // const [ loadedFile, setLoadedFile ] = useState<File>()
   // const { url } = useStorage(loadedFile)
   // useEffect(() => {
@@ -34,14 +40,33 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
     const target = e.target as HTMLTextAreaElement
     setInputValue(target.value)
   }
+  const tagsHandler = (e: React.FormEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement
+    setTagValue(target.value)
+  }
+
+  const tagAddHandler = (e:React.MouseEvent) => {
+    e.preventDefault()
+    if (!tagValue) {
+      return
+    } 
+    const tagExisted = tagList.includes(tagValue) 
+    if (!tagExisted) {
+      setTagList([...tagList, tagValue])
+    }
+  }
+
+  const tagRemoveHandler = (tagItem: string) => {
+    setTagList(tagList.filter(tag => tag !== tagItem))
+  }
+
   const submitHandler = async (e:React.MouseEvent) => {
     e.preventDefault()
-    // if (!previewUrl && !inputValue && !user && !inputValue) {
-    //   return
-    // }
     if (previewUrl && inputValue && user ) {
       
-      dispatch(addPost({ text: inputValue, image: previewUrl, author: user }))
+      dispatch(addPost({ text: inputValue, image: previewUrl, author: user, tags: tagList }))
+      // TODO - Loading before change sites
+      // history.push('/home')
 
     } else {
       return
@@ -50,6 +75,7 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
     // postRef.add({ text: inputValue, image: previewUrl, createdAt })
     // const id = (await doc).id
     // console.log(id)
+    
 
   }
   return (
@@ -58,12 +84,12 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
         <div className="">
           <label className="block text-sm font-medium text-gray-700">
           </label>
-          {previewUrl? <img src={previewUrl}/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5 md:rounded-t-md ">
+          {previewUrl? <img src={previewUrl} className="overflow-hide h-60 object-cover w-full"/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5 md:rounded-t-md ">
             <div className="space-y-1 text-center text-gray-400">
               <PictureIcon className="mx-auto h-12 w-12 fill-current"/>
               
               <div className="flex text-sm text-gray-600">
-                <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-blue-500">
                   <span>Upload an image</span>
                   <input 
                   id="file-upload" 
@@ -80,14 +106,36 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
           }
           
         </div>
-        <div className="p-2 ">
-          <div className="w-full">
-            <label htmlFor="about" className="block text-sm font-medium text-gray-700">
+        <div className="p-2 w-full">
+         
+          <div>
+
+            <label htmlFor="post" className="block text-sm font-medium text-gray-700">
             </label>
             <div className="mt-1">
-              <textarea id="about" name="about" rows={6}  className="border-none focus:ring-transparent focus:border-transparent p-2 block w-full sm:text-sm border-gray-300 rounded-md text-gray-800 resize-none" placeholder="Write down your real thoughts..." onInput={inputHandler} value={inputValue} />
+              <textarea id="post" name="post" rows={6}  className="border-none focus:ring-transparent focus:border-transparent block w-full sm:text-sm border-gray-300 rounded-md text-gray-800 resize-none" placeholder="Write down your real thoughts..." onInput={inputHandler} value={inputValue} />
             </div>
-          </div>  
+          </div>
+          <div className="p-2 text-sm flex items-center">
+            <label htmlFor="tags" className="block pr-4 font-medium text-gray-700">Tags
+            </label>
+            <input id="tags" name="tags" placeholder="Topics" className="border border-gray-300 rounded-md p-1 mr-4 flex-grow-1" onInput={tagsHandler}/>
+            <button className="text-blue-500 rounded-full" onClick={tagAddHandler}>
+              <AddIcon className="h-8 fill-current"/>
+            </button>
+          </div>
+
+          <div className="mt-4 flex space-x-2">
+            {tagList.map(tag => {
+              return (
+                <div className="" key={tag}>
+                  <span className="tag-blue text-white flex items-center">#{tag} <button className="ml-1 h-4 rounded-full flex-shrink-0" onClick={()=> tagRemoveHandler(tag)}><RemoveIcon className="fill-current h-3 w-3 brounded-full flex-shrink-0"/></button></span>
+                  
+                </div>
+              )
+            })}
+          </div>
+         
         </div>
         <div className="w-full text-center">
           <button onClick={submitHandler} className="btn-blue bg-blue-500 my-4 mx-auto text-sm">ADD POST</button>

@@ -8,6 +8,7 @@ import AddUser from '../pages/SignUp';
 import Home from '../pages/Home'
 import UserProfile from '../pages/UserProfile';
 import { retrieveUser } from '../pages/userSlice';
+import Topics from '../pages/Topics';
 
 
 
@@ -31,6 +32,9 @@ function App() {
           
           <Route exact path="/home">
             <Home />
+          </Route>
+          <Route exact path="/topics">
+            <Topics />
           </Route>
           <Route exact path="/login">
             <Login/>

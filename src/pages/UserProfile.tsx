@@ -55,9 +55,9 @@ const UserProfile: React.FC<UserProfileProps> = ({}) => {
  
   const submitHandler = async (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (previewUrl && inputs.name && user ) {
+    if (inputs.name && user ) {
       
-      dispatch(updateUser({ image: previewUrl, name: inputs.name.value, email: user.email }))
+      dispatch(updateUser( { image: previewUrl, name: inputs.name.value, email: user.email, oldImage: user.image, likes: user.likes }))
 
     } else {
       return

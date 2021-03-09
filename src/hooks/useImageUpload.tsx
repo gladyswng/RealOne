@@ -9,6 +9,13 @@ export const useImageUpload = (image?: string) => {
 
   const [isValid, setIsValid] = useState(false)
   
+  // TODO - delete last preview image before change profile
+
+  // useEffect(async () => {
+  //   if (image && previewUrl) {
+  //     await projectStorage.refFromURL(previewUrl).delete()
+  //   }
+  // },[])
 
   useEffect(() => {
   if (image) {
@@ -28,14 +35,21 @@ export const useImageUpload = (image?: string) => {
       return
     }
 
+    // const deleteImage = async (imageUrl: string) => {
+    //    await projectStorage.refFromURL(imageUrl).delete()
+    // }
+
     const storageRef:any = projectStorage.ref(file.name)
     // const collectionRef: any = projectFirestore.collection('posts')
 
     storageRef.put(file).on('state_changed', () => {},(err: any) => {
       console.log(err)
     }, async () => {
-      if (previewUrl) {
-        // console.log(previewUrl)
+      if (previewUrl && previewUrl !== image) {
+        
+        console.log(previewUrl)
+        console.log(image)
+        // deleteImage(previewUrl)
         await projectStorage.refFromURL(previewUrl).delete()
       }
       const url = await storageRef.getDownloadURL()
