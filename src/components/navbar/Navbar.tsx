@@ -7,8 +7,9 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout, selectUser } from '../../pages/userSlice'
 import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
-import { fetchNotifications, selectnotification } from '../../pages/notificationSlice'
+import { fetchNotifications, selectNotification, selectUndreadCount, updateNotifications } from '../../pages/notificationSlice'
 import Notification from './Notification'
+import useClickOutside from '../../hooks/useClickOutside'
 
 
 interface NavbarProps {
@@ -18,9 +19,14 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({}) => {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
-  const notifications = useSelector(selectnotification)
-  const read = notifications.every(note => note.read)
-  const [ clicked, setClicked ] = useState(false)
+  const notifications = useSelector(selectNotification)
+  const unreadCount = useSelector(selectUndreadCount)
+
+  const { ref: myElementRef, componentVisible, setComponentVisible  } = useClickOutside<HTMLDivElement>(false)
+
+
+  // const read = notifications.every(note => note.read)
+  const [ clicked, setClicked ] = useState<boolean>(false)
   const [ notificationsShow, setNotificationsShow ] = useState<boolean>(false)
 
   // const [ notificationRead, setNotifi ]
@@ -28,19 +34,28 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const logoutHandler = () => {
     dispatch(logout())
   }
-  console.log(notifications)
+  console.log(unreadCount)
   useEffect(() => {
-    if (user) {
-      console.log('dispatch notification')
+    if (user ) {
+ 
       dispatch(fetchNotifications({user: user.email}))
     }
   }, [user?.email])
 
+  useEffect(() => {
+    if (clicked && !componentVisible && user && unreadCount > 0 ) {
+      console.log('dispatch update')
+      dispatch(updateNotifications({ user: user?.email }))
+    } 
+  }, [clicked, componentVisible])
+
   const notificationClickHandler = (e:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (!clicked) {
       setClicked(true)
-
     }
+    setComponentVisible(!componentVisible)
+    
+    
   }
 
 
@@ -89,14 +104,14 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
                   <AddIcon />
                 </Link>
               </button>
-              <div className="relative">
-                <button className="btn-nav relative"  aria-haspopup="true" onClick={notificationClickHandler}>
+              <div className="relative" ref={myElementRef}>
+                <button className="btn-nav relative"  aria-haspopup="true" onClick={notificationClickHandler}  >
                   <span className="sr-only">View notifications</span>
-                  <div className="absolute right-0 top-0 h-2 w-2 bg-red-500 z-10 rounded-full" hidden={read||clicked }></div>
+                  <div className="absolute right-0 top-0 h-4 w-4 bg-red-500 z-10 rounded-full text-xs" hidden={unreadCount=== 0}>{unreadCount}</div>
                   <AlertIcon />
                 </button>
 
-                  <Notification />
+                 {componentVisible && <Notification notifications={notifications}/>}
 
 
               </div>
