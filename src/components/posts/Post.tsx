@@ -5,6 +5,7 @@ import { ReactComponent as SaveIcon } from '../../svg/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
 import { ReactComponent as ArrowDownIcon } from '../../svg/arrow_down.svg'
 import { ReactComponent as RemoveIcon } from '../../svg/remove_filled.svg'
+import { ReactComponent as CommentIcon } from '../../svg/comment.svg'
 import Comment from './Comment'
 import { addUserLike, removeUserLike, selectUser } from '../../pages/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
@@ -94,6 +95,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <button className="pt-4 text-sm text-gray-700 focus:text-blue-500 border-none focus-within:outline-none flex" onClick={commentHandler}>
                   <span className="flex-shrink-0">{post.comments} {post.comments < 2 ? 'comment' : 'comments'}
                   </span>
+                  
                   <ArrowDownIcon className="h-5 ml-1 fill-current"/>
                 </button>
                 
