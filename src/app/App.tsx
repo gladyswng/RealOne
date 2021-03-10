@@ -21,6 +21,9 @@ function App() {
       dispatch(retrieveUser({ email: storedUser}))   
     }
   },[])
+
+
+
   return (
     <Router>
       <div>

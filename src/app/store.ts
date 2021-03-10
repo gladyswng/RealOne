@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import counterReducer from '../components/counter/counterSlice';
 import postReducer from '../pages/postSlice'
 import userReducer from '../pages/userSlice'
+import notificationReducer from '../pages/notificationSlice'
 
 // import { firebaseReducer } from 'react-redux-firebase'
 
@@ -22,7 +23,8 @@ export const store = configureStore({
   reducer: {
     post: postReducer,
     user: userReducer,
-    counter: counterReducer,
+    notification: notificationReducer,
+    counter: counterReducer
   },
 });
 

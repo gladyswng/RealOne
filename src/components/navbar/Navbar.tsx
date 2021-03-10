@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ReactComponent as AddIcon } from '../../svg/add.svg'
 import { ReactComponent as AlertIcon } from '../../svg/alert.svg'
 import { ReactComponent as MenuIcon } from '../../svg/menu.svg'
 import { ReactComponent as CloseIcon } from '../../svg/close.svg'
 import { Link } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { selectUser } from '../../pages/userSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout, selectUser } from '../../pages/userSlice'
 import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
+import { fetchNotifications, selectnotification } from '../../pages/notificationSlice'
+import Notification from './Notification'
 
 
 interface NavbarProps {
@@ -14,9 +16,35 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
-
+  const dispatch = useDispatch()
   const user = useSelector(selectUser)
-  
+  const notifications = useSelector(selectnotification)
+  const read = notifications.every(note => note.read)
+  const [ clicked, setClicked ] = useState(false)
+  const [ notificationsShow, setNotificationsShow ] = useState<boolean>(false)
+
+  // const [ notificationRead, setNotifi ]
+
+  const logoutHandler = () => {
+    dispatch(logout())
+  }
+  console.log(notifications)
+  useEffect(() => {
+    if (user) {
+      console.log('dispatch notification')
+      dispatch(fetchNotifications({user: user.email}))
+    }
+  }, [user?.email])
+
+  const notificationClickHandler = (e:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (!clicked) {
+      setClicked(true)
+
+    }
+  }
+
+
+
     return (
       <nav className="bg-blue-500">
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
@@ -45,23 +73,34 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
 
 
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 space-x-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-              <button className="bg-blue-900 p-1 rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-900 focus:ring-white">
-                <span className="sr-only">Add post</span>
+              <button className="btn-nav">
+                <span className="sr-only">Log in</span>
                 <Link to="/login" >
                   <span>LOGIN</span>
                 </Link>
               </button>
-              <button className="bg-blue-900 p-1 rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-900 focus:ring-white">
+              <button className="btn-nav" onClick={logoutHandler}>
+                <span className="sr-only">Log out</span>
+                <span>LOGOUT</span>
+              </button>
+              <button className="btn-nav">
                 <span className="sr-only">Add post</span>
                 <Link to="/addPost" >
                   <AddIcon />
                 </Link>
               </button>
-              <button className="bg-blue-900 p-1 rounded-full text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-900 focus:ring-white">
-                <span className="sr-only">View notifications</span>
-              
-                <AlertIcon />
-              </button>
+              <div className="relative">
+                <button className="btn-nav relative"  aria-haspopup="true" onClick={notificationClickHandler}>
+                  <span className="sr-only">View notifications</span>
+                  <div className="absolute right-0 top-0 h-2 w-2 bg-red-500 z-10 rounded-full" hidden={read||clicked }></div>
+                  <AlertIcon />
+                </button>
+
+                  <Notification />
+
+
+              </div>
+            
 
             
               <div className="ml-3 relative">

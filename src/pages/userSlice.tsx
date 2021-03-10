@@ -58,8 +58,9 @@ export const login = createAsyncThunk('user/login',
   }
 ) 
 
-export const logout = createAsyncThunk('user/logout', 
+export const logout = createAsyncThunk('user/logout',
   async () => {
+     console.log('login out') 
     try{
       await auth.signOut()
       localStorage.removeItem('user')
@@ -101,7 +102,7 @@ export const retrieveUser = createAsyncThunk('user/retrieve', async ({email}: {e
   return user
 })
 export const userSlice = createSlice({
-  name: 'post',
+  name: 'user',
   initialState,
   reducers: {
     addUserLike: (state, action) => {
@@ -117,6 +118,9 @@ export const userSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(login.fulfilled, (state, action) => {
       state.user = action.payload
+    })
+    .addCase(logout.fulfilled, (state) => {
+      state.user = null
     })
     .addCase(retrieveUser.fulfilled, (state, action) => {
       state.user = action.payload

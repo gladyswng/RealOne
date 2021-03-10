@@ -34,7 +34,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const commentHandler = () => {
     setCommnetsShow(!commentsShow)
   }
-  if (user) console.log(user.likes)
+ 
 
   const likeHandler = () => {
     if(!user) {
@@ -84,7 +84,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               {post.tags && 
                 (<div className="mt-4 flex space-x-2">
                   {post.tags.map(tag => {
-                    return <span className="tag-blue">#{tag}</span>
+                    return <span className="tag-blue" key={tag}>#{tag}</span>
                   })}
                 </div>)}
               <div className="flex justify-between w-full">

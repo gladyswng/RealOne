@@ -149,8 +149,11 @@ export const deletePost = createAsyncThunk('posts/deletePost', async ({post } : 
 export const addPostLike = createAsyncThunk('posts/addLike', async ({post, user } : {post: IPost, user: IUser}) => {
   const postRef = projectFirestore.collection('posts').doc(post.id)
   const userRef = projectFirestore.collection('users').doc(user.email)
+  const notificationRef = projectFirestore.collection('notifications')
+  const createdAt = timestamp()
   await postRef.update({ likes: increment(1)})
   await userRef.update({ likes: arrayUnion(post.id) })
+  await notificationRef.add({ createdAt, postId: post.id, sender: user.name, recipient: post.author.email, type: 'like', read: false })
   return post.id
 }
 )
