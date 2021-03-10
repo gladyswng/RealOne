@@ -27,14 +27,14 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
 
   // const read = notifications.every(note => note.read)
   const [ clicked, setClicked ] = useState<boolean>(false)
-  const [ notificationsShow, setNotificationsShow ] = useState<boolean>(false)
 
   // const [ notificationRead, setNotifi ]
 
   const logoutHandler = () => {
     dispatch(logout())
   }
-  console.log(unreadCount)
+ 
+  
   useEffect(() => {
     if (user ) {
  
@@ -42,6 +42,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     }
   }, [user?.email])
 
+  // Dispatch update after click outside the component
   useEffect(() => {
     if (clicked && !componentVisible && user && unreadCount > 0 ) {
       console.log('dispatch update')

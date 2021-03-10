@@ -14,16 +14,22 @@ interface IAuthor {
 interface ICommentOnAdd {
   text: string
   author: IAuthor
-  postId: string
+  post: {
+    id: string,
+    author: IAuthor
+  }
 }
 
 interface CommentFieldProps {
-  postId: string
+  post: {
+    id: string,
+    author: IAuthor
+  }
   user: IAuthor
-  addComment: ({ text, author, postId }: ICommentOnAdd) => Promise<void>
+  addComment: ({ text, author, post }: ICommentOnAdd) => Promise<void>
 }
 
-const CommentField: React.FC<CommentFieldProps> = ({ postId, addComment, user }) => {
+const CommentField: React.FC<CommentFieldProps> = ({ post, addComment, user }) => {
   // const user = useSelector(selectUser)
   const [ comment, setComment ]= useState<string>()
   // const {  addComment } = useComment()
@@ -32,7 +38,7 @@ const CommentField: React.FC<CommentFieldProps> = ({ postId, addComment, user })
       return
     }
 
-    addComment({ author:user, text: comment, postId })
+    addComment({ author:user, text: comment, post })
     // dispatch(addComment({ author: user.email, text: comment, postId }))
     setComment('')
   }

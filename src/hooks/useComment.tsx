@@ -16,7 +16,10 @@ interface IAuthor {
 interface ICommentOnAdd {
   text: string
   author: IAuthor
-  postId: string
+  post: {
+    id: string,
+    author: IAuthor
+  }
 }
 
 
@@ -57,22 +60,25 @@ export const useComment = () => {
     setCommentList(commentList)
   }
   
-  const addComment = async ({ text, author, postId } :ICommentOnAdd) => {
+  const addComment = async ({ text, author, post } :ICommentOnAdd) => {
     const createdAt = timestamp()
+
     const userRef= projectFirestore.collection('users').doc(author.email)
-    const postRef = projectFirestore.collection('posts').doc(postId)
+    const postRef = projectFirestore.collection('posts').doc(post.id)
+     const notificationRef = projectFirestore.collection('notifications')
+    await notificationRef.add({ createdAt, postId: post.id, sender: author.name, recipient: post.author.email, type: 'comment', read: false })
     const commentRef = projectFirestore.collection('comments')
     await postRef.update({ comments: increment(1)})
     
-    const commentAdded = commentRef.add({ post: postId, author:userRef, text, createdAt })
+    const commentAdded = commentRef.add({ post: post.id, author:userRef, text, createdAt })
     const id = (await commentAdded).id
     const time = timeAgoCalculator(new Date().getTime())
-    const comment = { post: postId, author, text, createdAt: time, id } 
+    const comment = { post: post.id, author, text, createdAt: time, id }
     // createdAt: 
     // return comment
   
     setCommentList([...commentList, comment])
-    dispatch(addCommentCount(postId))
+    dispatch(addCommentCount(post.id))
   }
 
   const deleteComment = async (id: string, postId: string) => {

@@ -6,11 +6,17 @@ import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
 import { ReactComponent as RemoveIcon } from '../../svg/remove.svg'
 import { selectUser } from '../../pages/userSlice'
 interface CommentProps {
-  postId: string
+  post: {
+    id: string
+    author: {
+      name: string
+      email: string
+    }
+  }
   postComments: number | undefined
 }
 
-const Comment: React.FC<CommentProps> = ({ postId, postComments}) => {
+const Comment: React.FC<CommentProps> = ({ post, postComments }) => {
   const dispatch = useDispatch()
   const user = useSelector(selectUser)
   // const commentList = useSelector(selectComments)
@@ -28,7 +34,7 @@ const Comment: React.FC<CommentProps> = ({ postId, postComments}) => {
     // TODO - Swtich to if post
     if (postComments) {
 
-      fetchComments(postId)
+      fetchComments(post.id)
     }
   }, [])
 
@@ -68,7 +74,7 @@ const Comment: React.FC<CommentProps> = ({ postId, postComments}) => {
               </div>
             </div>
             
-            {user && user.email === comment.author.email && <button className="flex-shrink-0 rounded-full focus:outline-none focus:ring-white" onClick={() => deleteComment(comment.id, postId)}>
+            {user && user.email === comment.author.email && <button className="flex-shrink-0 rounded-full focus:outline-none focus:ring-white" onClick={() => deleteComment(comment.id, post.id)}>
               <span className="sr-only">Delete Comment</span>
               <RemoveIcon className="h-5 fill-current  text-blue-500 "/></button>}
           </div>
@@ -76,7 +82,7 @@ const Comment: React.FC<CommentProps> = ({ postId, postComments}) => {
         )
 
       })}
-      {user && <CommentField postId={postId} addComment={addComment} user={user}/>}
+      {user && <CommentField post={post} addComment={addComment} user={user}/>}
       {/* <div className="pt-4 w-full flex items-end ">
         <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
         </label>

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { ReactComponent as HeartIcon } from '../../svg/heart.svg'
 import { ReactComponent as SaveIcon } from '../../svg/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../svg/profile.svg'
+import { ReactComponent as ArrowDownIcon } from '../../svg/arrow_down.svg'
 import { ReactComponent as RemoveIcon } from '../../svg/remove_filled.svg'
 import Comment from './Comment'
 import { addUserLike, removeUserLike, selectUser } from '../../pages/userSlice'
@@ -90,13 +91,19 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <div className="flex justify-between w-full">
                 <p className="text-gray-500 text-sm mt-4">{post.createdAt} ago</p>
 
-                <button className="pt-4 text-sm text-gray-700 focus:text-blue-500 border-none focus-within:outline-none" onClick={commentHandler}>{post.comments} {post.comments < 2 ? 'comment' : 'comments'}</button>
+                <button className="pt-4 text-sm text-gray-700 focus:text-blue-500 border-none focus-within:outline-none flex" onClick={commentHandler}>
+                  <span className="flex-shrink-0">{post.comments} {post.comments < 2 ? 'comment' : 'comments'}
+                  </span>
+                  <ArrowDownIcon className="h-5 ml-1 fill-current"/>
+                </button>
                 
 
               </div>
-              <div hidden={!commentsShow}>
+              <div hidden={!commentsShow} 
+               style={{ transition: 'all 3s ease-in-out', height: commentsShow ? '100%' : '0' }}
+              className="transition ease-out duration-100 transform opacity-0 scale-95  opacity-100 scale-100">
 
-                <Comment postId={post.id} postComments={post.comments}/>
+                <Comment post={post} postComments={post.comments}/>
               </div>
               
             </div>
