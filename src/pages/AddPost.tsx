@@ -81,31 +81,7 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
   return (
     <div className="max-w-md mx-auto bg-white md:rounded-md shadow-md overflow-hidden my-6 ">
       <form className="" >
-        <div className="">
-          <label className="block text-sm font-medium text-gray-700">
-          </label>
-          {previewUrl? <img src={previewUrl} className="overflow-hide h-60 object-cover w-full"/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5 md:rounded-t-md ">
-            <div className="space-y-1 text-center text-gray-400">
-              <PictureIcon className="mx-auto h-12 w-12 fill-current"/>
-              
-              <div className="flex text-sm text-gray-600">
-                <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-blue-500">
-                  <span>Upload an image</span>
-                  <input 
-                  id="file-upload" 
-                  name="file-upload" 
-                  accept=".jpg,.png,.jpeg"
-                  type="file" 
-                  onChange={pickedHandler}
-                  className="sr-only" />
-                </label>
-              </div>
 
-            </div>
-          </div>
-          }
-          
-        </div>
         <div className="p-2 w-full">
          
           <div>
@@ -136,6 +112,31 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
             })}
           </div>
          
+        </div>
+                <div className="">
+          <label className="block text-sm font-medium text-gray-700">
+          </label>
+          {previewUrl? <img src={previewUrl} className="overflow-hide h-60 object-cover w-full"/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5  ">
+            <div className="space-y-1 text-center text-gray-400">
+              <PictureIcon className="mx-auto h-12 w-12 fill-current"/>
+              
+              <div className="flex text-sm text-gray-600">
+                <label htmlFor="file-upload" className="relative cursor-pointer font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-blue-500">
+                  <span>Upload an image</span>
+                  <input 
+                  id="file-upload" 
+                  name="file-upload" 
+                  accept=".jpg,.png,.jpeg"
+                  type="file" 
+                  onChange={pickedHandler}
+                  className="sr-only" />
+                </label>
+              </div>
+
+            </div>
+          </div>
+          }
+          
         </div>
         <div className="w-full text-center">
           <button onClick={submitHandler} className="btn-blue bg-blue-500 my-4 mx-auto text-sm">ADD POST</button>

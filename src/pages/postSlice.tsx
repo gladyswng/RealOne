@@ -60,7 +60,8 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts',
 
       const post = (doc.data())
       const author = await post.author.get()
-      post.author = await author.data()
+      const authorData = await author.data()
+      post.author = { name: authorData.name, email: authorData.email, image: authorData.image }
       const time = await post.createdAt.toDate()  
       post.createdAt = timeAgoCalculator(time)
       // post.createdAt = await post.createdAt.toDate().toDateString()  

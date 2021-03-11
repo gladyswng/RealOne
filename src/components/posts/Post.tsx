@@ -58,30 +58,32 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         <div className="max-w-md mx-auto bg-white sm:rounded-md shadow-md my-6">
         
           <div className="relative">
-            {post.image && <img className=" h-60 md:h-72 w-full object-cover" src={post.image} alt="Post image" />}
+            
 
             {user && user.email ===post.author.email && <button className="flex-shrink-0 rounded-full focus:outline-none focus:ring-white absolute top-2 right-2" onClick={()=> {dispatch(deletePost({post: post}))}}>    
             <span className="sr-only">Delete Comment</span>
             <RemoveIcon className="h-7 fill-current bg-white rounded-full text-blue-500 "/></button>}
           </div>
-          <div className="p-8 ">
+          
+          <div className="p-6 ">
+            
             <div className="flex justify-between w-full">
-                <div className="flex items-center">
-                  <button className="bg-gray-100 flex flex-shrink-0 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-white" id="user-menu" aria-haspopup="true">
-                    {post.author.image?<img className="h-8 w-8 rounded-full object-cover flex-shrink-0" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
-                  </button>
-                  <span className="text-gray-600 pl-2">{post.author.name}</span>
-                </div>
+              <div className="flex items-center">
+                <button className="bg-gray-100 flex flex-shrink-0 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-white" id="user-menu" aria-haspopup="true">
+                  {post.author.image?<img className="h-12 w-12 rounded-full object-cover flex-shrink-0" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
+                </button>
+                <div className="pl-4">
 
-                <div className="flex space-x-2 items-center">
-                  <span className="text-gray-700 text-sm">{post.likes} {post.likes > 1? 'likes': 'like'}</span>
-                  <button className={`${user?.likes.includes(post.id)? 'text-red-500' : 'text-gray-400'}`} onClick={likeHandler}><HeartIcon /></button>
-                  <div className="text-blue-500"><SaveIcon /></div>
+                  <p className="text-gray-600 ">{post.author.name}</p>
+                  <p className="text-gray-500 text-sm">{post.createdAt} ago</p>
                 </div>
-
               </div>
 
-              <p className="mt-2 text-gray-700 break-words">{post.text}</p>
+                
+              </div>
+
+              <p className="mt-6 text-gray-700 break-words">{post.text}</p>
+              
 
               {post.tags && 
                 (<div className="mt-4 flex space-x-2">
@@ -89,26 +91,38 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     return <span className="tag-blue" key={tag}>#{tag}</span>
                   })}
                 </div>)}
-              <div className="flex justify-between w-full">
-                <p className="text-gray-500 text-sm mt-4">{post.createdAt} ago</p>
+              
+              
+          </div>
+          {post.image && <img className=" h-60 md:h-72 w-full object-cover" src={post.image} alt="Post image" />}
+          
+          <div className="p-6 ">
 
-                <button className="pt-4 text-sm text-gray-700 focus:text-blue-500 border-none focus-within:outline-none flex" onClick={commentHandler}>
-                  <span className="flex-shrink-0">{post.comments} {post.comments < 2 ? 'comment' : 'comments'}
-                  </span>
-                  
-                  <ArrowDownIcon className="h-5 ml-1 fill-current"/>
-                </button>
+            <div className="flex items-center w-full divide-x text-sm justify-end ">
+              
+
+              <span className="flex-shrink-0 text-gray-700">{post.comments} {post.comments < 2 ? 'comment' : 'comments'}
+              </span>
+              <button className="text-gray-500 focus:text-blue-500 border-none focus-within:outline-none flex pr-4" onClick={commentHandler}>
                 
+                <CommentIcon className="h-6 ml-2 fill-current"/>
+              </button>
+              <span className="text-gray-700 pl-4">{post.likes} {post.likes > 1? 'likes': 'like'}</span>
+              
+              <button className={`${user?.likes.includes(post.id)? 'text-red-500' : 'text-gray-500'} text-sm border-none focus-within:outline-none flex items-center`} onClick={likeHandler}>
+                
+                <HeartIcon className="h-6 ml-2"/>
+              </button>
+              {/* <div className="text-blue-500"><SaveIcon /></div> */}
 
-              </div>
-              <div hidden={!commentsShow} 
-               style={{ transition: 'all 3s ease-in-out', height: commentsShow ? '100%' : '0' }}
+            </div>
+            <div hidden={!commentsShow} 
+              style={{ transition: 'all 3s ease-in-out', height: commentsShow ? '100%' : '0' }}
               className="transition ease-out duration-100 transform opacity-0 scale-95  opacity-100 scale-100">
 
-                <Comment post={post} postComments={post.comments}/>
-              </div>
-              
+              <Comment post={post} postComments={post.comments}/>
             </div>
+          </div>
 
        
         </div>
