@@ -40,7 +40,7 @@ export const fetchNotifications = createAsyncThunk('notification/fetchNotificati
   // const userRef = projectFirestore.collection('users')
   const notificationRef = projectFirestore.collection('notifications')
 
-  const notificationsSnapshot = await notificationRef.where('recipient', '==', user ).get()
+  const notificationsSnapshot = await notificationRef.where('recipient', '==', user ).orderBy('createdAt', 'desc').get()
   const result = notificationsSnapshot.docs.map(async doc => {
     const notification = doc.data()
     const time = await notification.createdAt.toDate()

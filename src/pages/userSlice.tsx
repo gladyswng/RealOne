@@ -8,6 +8,13 @@ interface IUser {
   email: string
   image?: string
   likes: string[]
+  messages: ISender[]
+}
+
+interface ISender {
+  name: string
+    image: string
+    email: string
 }
 
 interface IUserUpdate {
@@ -74,7 +81,7 @@ export const logout = createAsyncThunk('user/logout',
 
 export const updateUser = createAsyncThunk('user/update', async (user:IUserUpdate) => {
   //{ name, image, email, oldImage } : IUserUpdate
-  const { name, image, email, oldImage, likes } = user
+  const { name, image, email, oldImage } = user
   
   const userRef: any = projectFirestore.collection('users')
   if (oldImage && image && oldImage !== image) {
@@ -84,8 +91,8 @@ export const updateUser = createAsyncThunk('user/update', async (user:IUserUpdat
   try {
     
     await userRef.doc(email).update({ name, image })
-    const updatedUser = { name, image, email, likes}
-    return updatedUser
+    // const updatedUser = { name, image, email, likes, messages }
+    return { name, image }
 
      
     } catch (e) {
@@ -94,10 +101,24 @@ export const updateUser = createAsyncThunk('user/update', async (user:IUserUpdat
 })
 
 export const retrieveUser = createAsyncThunk('user/retrieve', async ({email}: {email:string}) => {
-
+  let senderList:any = []
   const userRef: any = projectFirestore.collection('users')
   const userDoc = await userRef.doc(email).get()
-  const user = userDoc.data()
+  let user = userDoc.data()
+  
+  
+  const result = await user.messages.map(async (sender: any) => {
+    const senderRef = await userRef.doc(sender).get()
+    const senderData = senderRef.data()
+    const senderInfo = { name: senderData.name, email: senderData.email, image: senderData.image }
+    senderList = [...senderList, senderInfo]
+    await Promise.all(senderList)
+    return senderList
+  })
+  await Promise.all(result)
+  console.log(senderList)
+  user = {...user, messages: senderList}
+
 
   return user
 })
@@ -127,10 +148,12 @@ export const userSlice = createSlice({
     })
     .addCase(updateUser.fulfilled, (state, action) => {
       // Is this right?
-      if (!action.payload) {
+      if (!action.payload || !state.user) {
         return
       }
-      state.user = action.payload
+      const { name, image } = action.payload
+      state.user = {...state.user, name, image}
+
     })
 
 

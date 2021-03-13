@@ -22,7 +22,7 @@ const Home: React.FC<HomeProps> = ({}) => {
   }, [])
   console.log(posts)
   
-
+console.log(user)
     return (
       <div className="flex justify-center items-start space-x-6 w-10/12 m-auto">
         <div className="bg-white sm:rounded-md shadow-md my-6 p-6 w-48 flex space-y-4 flex-col items-start">

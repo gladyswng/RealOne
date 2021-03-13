@@ -3,7 +3,7 @@ import counterReducer from '../components/counter/counterSlice';
 import postReducer from '../pages/postSlice'
 import userReducer from '../pages/userSlice'
 import notificationReducer from '../pages/notificationSlice'
-
+import messageReducer from '../pages/messageSlice'
 // import { firebaseReducer } from 'react-redux-firebase'
 
 // interface Profile {
@@ -24,6 +24,7 @@ export const store = configureStore({
     post: postReducer,
     user: userReducer,
     notification: notificationReducer,
+    message: messageReducer,
     counter: counterReducer
   },
 });

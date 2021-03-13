@@ -9,6 +9,8 @@ import Home from '../pages/Home'
 import UserProfile from '../pages/UserProfile';
 import { retrieveUser } from '../pages/userSlice';
 import Topics from '../pages/Topics';
+import Message from '../pages/Message';
+
 
 
 
@@ -23,10 +25,10 @@ function App() {
   },[])
 
 
-
+  
   return (
     <Router>
-      <div className="bg-gray-100">
+      <div className="">
         <Navbar />
         <div className="mt-10">
           
@@ -38,6 +40,9 @@ function App() {
           </Route>
           <Route exact path="/topics">
             <Topics />
+          </Route>
+          <Route exact path="/message">
+            <Message />
           </Route>
           <Route exact path="/login">
             <Login/>

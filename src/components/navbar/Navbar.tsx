@@ -80,8 +80,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
                   
                   <Link to="/home" className="bg-blue-900 text-white px-3 py-2 rounded-md text-sm font-medium">Feed</Link>
                   <Link to="/topics" href="#" className="btn-blue text-sm ">Topics</Link>
-                  <a href="#" className="btn-blue text-sm ">Saved</a>
-                  <a href="#" className="btn-blue text-sm ">Message</a>
+                  <Link to="/message" className="btn-blue text-sm ">Message</Link>
                 </div>
               </div>
             </div>
@@ -121,7 +120,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             
               <div className="ml-3 relative">
                 <div>
-                  <Link to="/profile" className="bg-gray-800 flex text-blue-500 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" id="user-menu" aria-haspopup="true">
+                  <Link to="/profile" className="bg-gray-800 flex text-blue-500 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white flex-shrink-0" id="user-menu" aria-haspopup="true">
                     <span className="sr-only">Open user menu</span>
                     {user?.image ? <img className="h-8 w-8 rounded-full object-cover" src={user.image} alt="" /> : <ProfileIcon className="w-8 fill-current"/>}
 
