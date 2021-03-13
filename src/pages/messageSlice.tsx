@@ -74,9 +74,9 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
   // Get all messages
   const result = messagesSnapshot.docs.map(async doc => {
     const message = doc.data()
-    // const senderRef = await message.sender.get()
-    // const sender = await senderRef.data()
-    // message.sender = {name: sender.name, email: sender.email, image: sender.image}
+    const senderRef = await message.sender.get()
+    const sender = await senderRef.data()
+    message.sender = {name: sender.name, email: sender.email, image: sender.image}
     
     const time = await message.createdAt.toDate()
     message.createdAt = timeAgoCalculator(time)
@@ -91,27 +91,32 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
   const unreadCount = messageList.filter(message => !message.read).length
   console.log(messageList)
   const userRef: any = projectFirestore.collection('users')
-  const sortedMessageList = await messageList.reduce(async (acc, message,_, currentList) => {
-    const sender = message.sender
+  const sortedMessageList = await messageList.reduce((acc, message,_, currentList) => {
+    const sender = message.sender.email
     if (!acc[sender]) {
-      const userDoc = await userRef.doc(sender).get()
-      const user = await userDoc.data()
-      console.log(user)
+      console.log(sender)
+      // const userDoc = await userRef.doc(sender).get()
+      // const user = await userDoc.data()
+      
+      // console.log(user)
       acc[sender] = {}
-      acc[sender].sender = {name: user.name, email: user.email, image: user.image}
+      acc[sender].sender = message.sender
+      // acc[sender].senderInfo = {name: user.name, email: user.email, image: user.image}
       acc[sender].conversation = []
       acc[sender].unreadCount = 0
+    
     }
     if (!message.read) {
       acc[sender].unreadCount += 1
     }
     acc[sender].conversation.push(message)
     acc[sender].lastContacted = currentList[currentList.length-1].createdAt
-
+    
     console.log(acc)
     return acc
   }, [])
-  await Promise.all(sortedMessageList)
+  console.log(sortedMessageList)
+  // await Promise.all(sortedMessageList)
   return { sortedMessageList, unreadCount}
 
 })
