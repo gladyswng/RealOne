@@ -8,7 +8,7 @@ interface IUser {
   email: string
   image?: string
   likes: string[]
-  contacts: ISender[]
+  // contacts: ISender[]
 }
 
 interface ISender {
@@ -52,24 +52,24 @@ export const login = createAsyncThunk('user/login',
     }
     const { email, password } = userCredential
     const userRef: any = projectFirestore.collection('users')
-    let senderList:any = []
+    // let senderList:any = []
     try {
       await auth.signInWithEmailAndPassword(email, password)
       const userDoc = await userRef.doc(email).get()
       let user = userDoc.data()
       localStorage.setItem('user', JSON.stringify(user.email))
-      const result = await user.contacts.map(async (sender: any) => {
-        const senderRef = await userRef.doc(sender).get()
-        const senderData = senderRef.data()
+      // const result = await user.contacts.map(async (sender: any) => {
+      //   const senderRef = await userRef.doc(sender).get()
+      //   const senderData = senderRef.data()
         
-        const senderInfo = {...senderData, id: senderRef.id }
-        senderList = [...senderList, senderInfo]
-        await Promise.all(senderList)
-        return senderList
-      })
-      await Promise.all(result)
-      console.log(senderList)
-      user = {...user, contacts: senderList}
+      //   const senderInfo = {...senderData, id: senderRef.id }
+      //   senderList = [...senderList, senderInfo]
+      //   await Promise.all(senderList)
+      //   return senderList
+      // })
+      // await Promise.all(result)
+      // console.log(senderList)
+      // user = {...user, contacts: senderList}
       
       return user
     } catch (e) {
@@ -124,17 +124,17 @@ export const retrieveUser = createAsyncThunk('user/retrieve', async ({email}: {e
   let user = userDoc.data()
   
   
-  const result = await user.contacts.map(async (sender: any) => {
-    const senderRef = await userRef.doc(sender).get()
-    const senderData = senderRef.data()
-    const senderInfo = { name: senderData.name, email: senderData.email, image: senderData.image }
-    senderList = [...senderList, senderInfo]
-    await Promise.all(senderList)
-    return senderList
-  })
-  await Promise.all(result)
+  // const result = await user.contacts.map(async (sender: any) => {
+  //   const senderRef = await userRef.doc(sender).get()
+  //   const senderData = senderRef.data()
+  //   const senderInfo = { name: senderData.name, email: senderData.email, image: senderData.image }
+  //   senderList = [...senderList, senderInfo]
+  //   await Promise.all(senderList)
+  //   return senderList
+  // })
+  // await Promise.all(result)
  
-  user = {...user, contacts: senderList}
+  // user = {...user, contacts: senderList}
 
 
   return user
