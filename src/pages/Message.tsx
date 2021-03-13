@@ -20,9 +20,21 @@ const Message: React.FC<MessageProps> = ({}) => {
   },[user])
   return (
     <div className="grid grid-cols-3 h-screen">
-      <div className="mx-auto bg-white sm:rounded-md shadow-md my-6 h-4/6">
-        hi
-      </div>
+      {user && (
+      <div className="mx-auto bg-white sm:rounded-md shadow-md my-6 h-4/6 divide-y">
+        {user.contacts.map(contact => {
+          return (
+          <div key={contact.email}>
+            <div className="flex p-4">
+              <img src={contact.image} className="h-10 w-10 rounded-full"/>
+              <p>{contact.name}</p>
+
+            </div>
+            
+          </div>)
+        })}
+
+      </div>)}
     </div>
   )
 }

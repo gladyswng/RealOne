@@ -9,10 +9,15 @@ import { timeAgoCalculator } from '../util/timeAgoCalculator';
 
 
 interface IMessage {
+  
   createdAt: string
   read: boolean
   recipient: string
-  sender: string
+  sender: {
+    email: string
+    image?: string
+    name: string
+  }
   id: string
   access: string[]
 }
@@ -24,22 +29,32 @@ interface IMessageOnAdd {
   message: string
 }
 
+interface ISender {
+  name: string
+  image?: string
+  email: string
+}
 
 interface IMessageState {
-  messages: IMessage[]
-  senderList: {
-    name: string
-    image?: string
-  } []
-  conversation: IMessage[]
+  messageList: {
+    sender: {
+      conversation: IMessage[]
+      lastContacted: string
+      unreadCount: number
+
+    }
+  }[]
+  senderList: ISender[]
+  
+  currentConversation: IMessage[]
   unreadCount: number
   status: 'idle' | 'pending' | 'fulfilled' | 'rejected'
 }
 
 const initialState: IMessageState = {
-  messages: [],
+  messageList: [],
   senderList: [],
-  conversation: [],
+  currentConversation: [],
   unreadCount: 0,
   status: 'idle'
 }
@@ -56,25 +71,48 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
   const messageRef = projectFirestore.collection('messages')
 
   const messagesSnapshot = await messageRef.where('access', 'array-contains', user).get()
-
+  // Get all messages
   const result = messagesSnapshot.docs.map(async doc => {
     const message = doc.data()
-  
-    const senderRef = await message.sender.get()
-    const sender = await senderRef.data()
-    message.sender = {name: sender.name, email: sender.email, image: sender.image}
+    // const senderRef = await message.sender.get()
+    // const sender = await senderRef.data()
+    // message.sender = {name: sender.name, email: sender.email, image: sender.image}
     
     const time = await message.createdAt.toDate()
     message.createdAt = timeAgoCalculator(time)
     message.id = doc.id
     messageList = [...messageList, message]
-
     await Promise.all(messageList)
     return messageList
   })
   await Promise.all(result)
  
-  return messageList
+  // sort messages after user
+  const unreadCount = messageList.filter(message => !message.read).length
+  console.log(messageList)
+  const userRef: any = projectFirestore.collection('users')
+  const sortedMessageList = await messageList.reduce(async (acc, message,_, currentList) => {
+    const sender = message.sender
+    if (!acc[sender]) {
+      const userDoc = await userRef.doc(sender).get()
+      const user = await userDoc.data()
+      console.log(user)
+      acc[sender] = {}
+      acc[sender].sender = {name: user.name, email: user.email, image: user.image}
+      acc[sender].conversation = []
+      acc[sender].unreadCount = 0
+    }
+    if (!message.read) {
+      acc[sender].unreadCount += 1
+    }
+    acc[sender].conversation.push(message)
+    acc[sender].lastContacted = currentList[currentList.length-1].createdAt
+
+    console.log(acc)
+    return acc
+  }, [])
+  await Promise.all(sortedMessageList)
+  return { sortedMessageList, unreadCount}
 
 })
 
@@ -96,28 +134,24 @@ export const messageSlice = createSlice({
   initialState,
   reducers: {
     getConversation: (state, action) => {
-      state.messages.filter(message => message.sender === action.payload)
+      state.messageList.filter(message => message.sender === action.payload)
       
     }
   },
   extraReducers: builder => {
     builder.addCase(fetchmessages.fulfilled, (state, action) => {
       
-      state.unreadCount = action.payload.filter(message => !message.read).length
       
-      // const senderList = [...new Set (action.payload.map(message => message.sender))] 
-      const unsortedSenderList = action.payload.map(message => message.sender)
-      const senderList = unsortedSenderList.filter((user, index, self) => self.findIndex(u => u.name === user.name) === index)
-      console.log(senderList)
+      
+      console.log(action.payload)
+     
+      // const unsortedSenderList = action.payload.map(message => message.sender)
+      // const senderList = unsortedSenderList.filter((user, index, self) => self.findIndex(u => u.name === user.name) === index)
 
-      // const conversation = action.payload.filter(message => message.access.includes('1234@123.com'))
-      // console.log(conversation)
-      state.senderList = senderList
-      state.messages = action.payload
     })
     .addCase(updatemessages.fulfilled, (state, action) => {
-      state.unreadCount = 0
-      state.messages.forEach(note => note.read = true)
+      // state.unreadCount = 0
+      // state.messageList.forEach(note => note.read = true)
 
     })
 
@@ -130,7 +164,7 @@ export const {  } = messageSlice.actions;
 
 
 
-export const selectMessages = (state: RootState) => state.message.messages
+export const selectMessages = (state: RootState) => state.message.messageList
 export const selectUndreadCount = (state: RootState) => state.message.unreadCount
 
 export default messageSlice.reducer;

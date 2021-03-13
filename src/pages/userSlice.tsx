@@ -8,7 +8,7 @@ interface IUser {
   email: string
   image?: string
   likes: string[]
-  messages: ISender[]
+  contacts: ISender[]
 }
 
 interface ISender {
@@ -52,11 +52,24 @@ export const login = createAsyncThunk('user/login',
     }
     const { email, password } = userCredential
     const userRef: any = projectFirestore.collection('users')
+    let senderList:any = []
     try {
       await auth.signInWithEmailAndPassword(email, password)
       const userDoc = await userRef.doc(email).get()
-      const user = userDoc.data()
+      let user = userDoc.data()
       localStorage.setItem('user', JSON.stringify(user.email))
+      const result = await user.contacts.map(async (sender: any) => {
+        const senderRef = await userRef.doc(sender).get()
+        const senderData = senderRef.data()
+        
+        const senderInfo = {...senderData, id: senderRef.id }
+        senderList = [...senderList, senderInfo]
+        await Promise.all(senderList)
+        return senderList
+      })
+      await Promise.all(result)
+      console.log(senderList)
+      user = {...user, contacts: senderList}
       
       return user
     } catch (e) {
@@ -100,6 +113,10 @@ export const updateUser = createAsyncThunk('user/update', async (user:IUserUpdat
     }
 })
 
+// export const fetchUserByEmail = createAsyncThunk('user/retrieve', async ({email}: {email:string}) => {
+  
+// })
+
 export const retrieveUser = createAsyncThunk('user/retrieve', async ({email}: {email:string}) => {
   let senderList:any = []
   const userRef: any = projectFirestore.collection('users')
@@ -107,7 +124,7 @@ export const retrieveUser = createAsyncThunk('user/retrieve', async ({email}: {e
   let user = userDoc.data()
   
   
-  const result = await user.messages.map(async (sender: any) => {
+  const result = await user.contacts.map(async (sender: any) => {
     const senderRef = await userRef.doc(sender).get()
     const senderData = senderRef.data()
     const senderInfo = { name: senderData.name, email: senderData.email, image: senderData.image }
@@ -116,8 +133,8 @@ export const retrieveUser = createAsyncThunk('user/retrieve', async ({email}: {e
     return senderList
   })
   await Promise.all(result)
-  console.log(senderList)
-  user = {...user, messages: senderList}
+ 
+  user = {...user, contacts: senderList}
 
 
   return user
