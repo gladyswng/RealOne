@@ -49,12 +49,12 @@ const CommentField: React.FC<CommentFieldProps> = ({ post, addComment, user }) =
   }
   return (
     <div className="pt-4 w-full flex items-end ">
-        <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
-        </label>
-        <AutoTextArea className="w-full resize-none block border-gray-200 rounded-md text-gray-700 text-sm focus:ring-transparent focus:border-transparent overflow-hidden" name="comment" placeholder="Leave a comment" onInput={inputHandler} value={comment}/>
-        <button className=" btn-blue bg-blue-500 ml-2" onClick={commentSubmitHandler} >Send</button>
+      <label htmlFor="comment" className="block text-sm font-medium text-gray-700">
+      </label>
+      <AutoTextArea className="w-full resize-none block border-gray-200 rounded-md text-gray-700 text-sm focus:ring-transparent focus:border-transparent overflow-hidden" name="comment" placeholder="Leave a comment" onInput={inputHandler} value={comment}/>
+      <button className=" btn-blue bg-blue-500 ml-2" onClick={commentSubmitHandler} >Send</button>
 
-      </div>
+    </div>
 
   )
 }

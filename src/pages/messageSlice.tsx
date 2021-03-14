@@ -11,15 +11,11 @@ import { timeAgoCalculator } from '../util/timeAgoCalculator';
 
 interface IMessage {
   
-  createdAt: string
+  message: string
   read: boolean
-  recipient: string
-  sender: {
-    email: string
-    image?: string
-    name: string
-  }
   id: string
+  createdAt: string
+  sender: string
   access: string[]
 }
 
@@ -28,6 +24,7 @@ interface IMessageOnAdd {
   recipient: string
   sender: string
   message: string
+
 }
 
 interface ISender {
@@ -58,15 +55,11 @@ const initialState: IMessageState = {
   status: 'idle'
 }
 
-export const addMessage = createAsyncThunk('message/addMessage', async ({messageData }: {messageData: IMessageOnAdd}) => {
-  const { recipient, sender, message } = messageData
-  const createdAt = timestamp()
-})
+
 
 export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ user }: {user: string}) => {
   let messageList:any[] = []
 
-  // const userRef = projectFirestore.collection('users')
   const messageRef = projectFirestore.collection('messages')
   const userRef = projectFirestore.collection('users')
   
@@ -75,14 +68,11 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
   // Get all messages
   const result = messagesSnapshot.docs.map(async doc => {
     const message = doc.data()
-    const contactEmail = message.access.filter((user:any) => user !== '123123@123.com').toString()
+    const contactEmail = message.access.filter((u:any) => u !== user).toString()
     const contactRef = await userRef.doc(contactEmail).get()
     const userData = contactRef.data()
 
     message.contact = {name: userData?.name, email: userData?.email, image: userData?.image}
-    // const sender = await senderRef.data()
-    // message.sender = {name: sender.name, email: sender.email, image: sender.image}
-    
     const time = await message.createdAt.toDate()
     message.createdAt = timeAgoCalculator(time)
     message.id = doc.id
@@ -96,7 +86,7 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
 
  
   // sort messages after conversation users
-  const totalUnreadCount = messageList.filter(message => !message.read).length
+  const totalUnreadCount = messageList.filter(message => !message.read && message.sender === message.contact.email).length
 
   const sortedMessageList = messageList.reduce((acc, message,_, currentList) => {
   
@@ -108,7 +98,7 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
       })
     }
     const messageIndex = acc.findIndex((messageData: any) => messageData.contact.email === message.contact.email)
-    if (!message.read) {
+    if (!message.read && message.sender === message.contact.email) {
       acc[messageIndex].unreadCount += 1
     }
     acc[messageIndex].conversation.push(message)
@@ -117,40 +107,14 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
     return acc
   }, [])
 
-      // const unsortedSenderList = action.payload.map(message => message.sender)
-      // const senderList = unsortedSenderList.filter((user, index, self) => self.findIndex(u => u.name === user.name) === index)
-     //     if (acc.every((messageData: any) => !messageData.access.includes(sender) && sender !== '123123@123.com')) {
-    //   acc.push({
-    //     sender: message.sender,
-    //     conversation: [],
-    //     unreadCount: 0
-    //   })
-    // }
-    // // console.log(currentList)
-
-    // const messageIndex = acc.findIndex((messageData: any) => messageData.sender === sender && sender !== '123123@123.com')
-    // console.log(messageIndex)
- // populate user data
-  // const contactEmailList  = sortedMessageList.map((m:any) => m.contact)
-  // const contactRef = projectFirestore.collection('users')
-  // let contactList:any = []
-  // const contactDetails = await contactEmailList.map(async (con:any) => {
-  //   const contactDoc = await contactRef.doc(con).get()
-  //   const contact = contactDoc.data()
-  //   const contactInfo = { name: contact?.name, email: contact?.email, image: contact?.image}
-  //   contactList = [...contactList, contactInfo]
-  //   await Promise.all(contactList)
-  //   return contactList
-  // })
-  // await Promise.all(contactDetails)
-  // console.log(contactList)
-
-
-  // await Promise.all(sortedMessageList)
-  // const senderList = sortedMessageList.map((messageData: any) => { return {...messageData.sender, unreadCount: messageData.unreadCount}})
-  // console.log(senderList)
   return { sortedMessageList, totalUnreadCount}
 
+})
+export const addMessage = createAsyncThunk('message/addMessage', async ({messageData }: {messageData: IMessageOnAdd}) => {
+  const { recipient, sender, message } = messageData
+  const createdAt = timestamp()
+  const messageRef = projectFirestore.collection('messages')
+  messageRef.add({ access: [recipient, sender], createdAt, message, read: false, recipient, sender })
 })
 
 export const updatemessages = createAsyncThunk('message/updatemessages ', async ({ user }: {user: string}) => {
@@ -185,6 +149,9 @@ export const messageSlice = createSlice({
       // state.senderList = action.payload.senderList
       
 
+    })
+    .addCase(addMessage.fulfilled, (state, action) => {
+      
     })
     .addCase(updatemessages.fulfilled, (state, action) => {
       // state.unreadCount = 0
