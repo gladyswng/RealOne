@@ -10,17 +10,15 @@ import Comment from './Comment'
 import { addUserLike, removeUserLike, selectUser } from '../../pages/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { deletePost, addPostLike, removePostLike } from '../../pages/postSlice'
+import { useHistory } from 'react-router-dom'
+import { createContact } from '../../pages/messageSlice'
 
 interface PostCardProps {
   post: {
     image?: string,
     text: string,
     createdAt: string
-    author: {
-      image?: string,
-      name: string,
-      email: string
-    },
+    author: IPostAuthor,
     id: string
     comments: number
     likes: number
@@ -28,8 +26,15 @@ interface PostCardProps {
   }
 }
 
+interface IPostAuthor {
+  image?: string,
+  name: string,
+  email: string
+}
+
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const dispatch = useDispatch()
+  const history = useHistory()
   const user = useSelector(selectUser)
   const [ commentsShow, setCommnetsShow ] = useState<boolean>(false)
   // const [ heart, setHeart ] = useState<boolean>()
@@ -52,6 +57,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     }
 
   }
+
+  const contactClickHandler = (postAuthor: IPostAuthor) => {
+    dispatch(createContact(postAuthor))
+    history.push('/message')
+  }
     return (
       <div>
 
@@ -67,17 +77,20 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           
           <div className="p-6 ">
             
-            <div className="flex justify-between w-full">
-              <div className="flex items-center">
-                <button className="bg-gray-100 flex flex-shrink-0 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-white" id="user-menu" aria-haspopup="true">
-                  {post.author.image?<img className="h-12 w-12 rounded-full object-cover flex-shrink-0" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
-                </button>
-                <div className="pl-4">
+            <div className="flex justify-between w-full items-start">
+              
+                <div className="flex items-center">
+                  <button className="bg-gray-100 flex flex-shrink-0 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2  focus:ring-white" id="user-menu" aria-haspopup="true">
+                    {post.author.image?<img className="h-12 w-12 rounded-full object-cover flex-shrink-0" src={post.author.image} alt="" /> : <ProfileIcon className="h-8 text-blue-500 fill-current"/>}
+                  </button>
+                  <div className="pl-4">
 
-                  <p className="text-gray-600 ">{post.author.name}</p>
-                  <p className="text-gray-500 text-sm">{post.createdAt} ago</p>
+                    <p className="text-gray-600 ">{post.author.name}</p>
+                    <p className="text-gray-500 text-sm">{post.createdAt} ago</p>
+                  </div>
                 </div>
-              </div>
+                {user && user.email !==post.author.email && <button className="text-blue-500 mt-0 border-blue-500 text-sm px-1 rounded-md focus:outline-none " onClick=
+                {() => contactClickHandler(post.author) }>Send Message</button>}
 
                 
               </div>

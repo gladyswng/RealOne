@@ -37,12 +37,12 @@ interface IMessageState {
   messageList: {
     contact: ISender
     conversation: IMessage[]
-    lastContacted: string
+    lastContacted?: string
     unreadCount: number
   }[]
   senderList: ISender[]
-  
-  currentConversation: IMessage[]
+  newCreatedContact: ISender | null
+  // currentConversation: IMessage[]
   totalUnreadCount: number
   status: 'idle' | 'pending' | 'fulfilled' | 'rejected'
 }
@@ -50,7 +50,8 @@ interface IMessageState {
 const initialState: IMessageState = {
   messageList: [],
   senderList: [],
-  currentConversation: [],
+  newCreatedContact: null,
+  // currentConversation: [],
   totalUnreadCount: 0,
   status: 'idle'
 }
@@ -110,7 +111,8 @@ export const fetchmessages = createAsyncThunk('message/fetchmessages', async ({ 
   return { sortedMessageList, totalUnreadCount}
 
 })
-export const addMessage = createAsyncThunk('message/addMessage', async ({messageData }: {messageData: IMessageOnAdd}) => {
+export const addMessage = createAsyncThunk('message/addMessage', async ({ messageData }: {messageData: IMessageOnAdd}) => {
+
   const { recipient, sender, message } = messageData
   const createdAt = timestamp()
   const messageRef = projectFirestore.collection('messages')
@@ -129,15 +131,17 @@ export const updatemessages = createAsyncThunk('message/updatemessages ', async 
 
 })
 
-
 export const messageSlice = createSlice({
   name: 'message',
   initialState,
   reducers: {
-    getConversation: (state, action) => {
-      state.messageList.filter(message => message.contact.email === action.payload)
-      
-    }
+    // Create contact after click on contact on post, fetch in message
+    createContact: (state,action) => {
+      console.log(action.payload)
+      state.newCreatedContact = action.payload
+    },
+   
+
   },
   extraReducers: builder => {
     builder.addCase(fetchmessages.fulfilled, (state, action) => {
@@ -164,12 +168,13 @@ export const messageSlice = createSlice({
   }
 });
 
-export const {  } = messageSlice.actions;
+export const { createContact } = messageSlice.actions;
 
 
 
 export const selectMessages = (state: RootState) => state.message.messageList
 export const selectUndreadCount = (state: RootState) => state.message.totalUnreadCount
+export const selectNewCreatedContact = (state: RootState) => state.message.newCreatedContact
 // export const selectSenderList = (state: RootState) => state.message.senderList
 
 export default messageSlice.reducer;
