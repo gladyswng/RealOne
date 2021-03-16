@@ -38,14 +38,14 @@ interface IPost {
 interface PostState {
   posts: IPost[],
   topicPosts: IPost[],
-  status: 'idle' | 'pending' | 'fulfilled' | 'rejected'
+  postListStatus: 'idle' | 'pending' | 'fulfilled' | 'rejected'
 }
 
 
 const initialState: PostState = {
   posts: [],
   topicPosts: [],
-  status: 'idle'
+  postListStatus: 'idle'
 };
 
 
@@ -218,7 +218,14 @@ export const postSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       
+      state.postListStatus = 'fulfilled'
       state.posts = action.payload
+    })
+    .addCase(fetchPosts.pending, (state, action) => {
+      state.postListStatus = 'pending'
+    })
+    .addCase(fetchPosts.rejected, (state, action) => {
+      state.postListStatus = 'rejected'
     })
     .addCase(deletePost.fulfilled, (state, action) => {
     

@@ -25,7 +25,8 @@ function App() {
   },[])
 
   let routes 
-  if (storedUser) {
+  
+  if (storedUser !== '{}') {
     // TODO - FIX REDIRECTION ISSUE WHEN TOKEN WAS FALSE YET
     
     routes = (
@@ -45,20 +46,21 @@ function App() {
       <Route exact path="/addPost">
         <AddPost />
       </Route>
-      <Route exact path="/registration">
-        <AddUser />
-      </Route>
       <Route exact path="/profile">
         <UserProfile />
       </Route>
-
-
-      <Redirect to="/registration" />
+      <Route exact path="/registration">
+          <AddUser />
+      </Route>
+      <Redirect to="/login" />
       </Switch>
     )
   } else {
     routes = (
       <Switch>
+        <Route exact path="/home">
+          <Home />
+        </Route>
         <Route exact path="/login">
           <Login/>
         </Route>

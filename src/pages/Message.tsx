@@ -45,7 +45,8 @@ const Message: React.FC<MessageProps> = ({}) => {
   },[user])
 
   useEffect(() => {
-    if (messages && currentContact) {
+    if (messages.length > 0 && currentContact) {
+  
       setCurrentChat((prevState) => {
         const currentMessageData = messages.find(m => m.contact.email === currentContact.email)
         if(currentMessageData) {
@@ -55,7 +56,7 @@ const Message: React.FC<MessageProps> = ({}) => {
         }
       })
     }
-  }, [currentContact])
+  }, [currentContact, messages])
 
   useEffect(() => {
     if (newCreatedContact) {
@@ -69,7 +70,7 @@ const Message: React.FC<MessageProps> = ({}) => {
  
     setCurrentContact(contact)
   }
-  console.log(currentContact)
+  
   // const inputHandler = (e:React.FormEvent<HTMLTextAreaElement>) => {
   //   const target = e.target as HTMLTextAreaElement
   //   setInputValue(target.value)
@@ -122,7 +123,7 @@ const Message: React.FC<MessageProps> = ({}) => {
         <div className="bg-white sm:rounded-md shadow-md h-4/6 py-6 px-10 flex flex-col justify-between w-9/12">
           { !currentContact && <div className="text-gray-500">No selected contact yet</div> }
           {currentChat && user && currentContact && (
-            <div className="overflow-hidden">
+            <div className="overflow-y-scroll px-4">
               {currentChat.map((messageData: any) => {
                 return (
                   <div key={messageData.id} >

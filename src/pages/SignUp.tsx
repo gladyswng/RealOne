@@ -6,12 +6,18 @@ import {ReactComponent as LogoIcon }from '../svg/logo.svg'
 
 
 import { VALIDATOR_REQUIRE, VALIDATOR_MINLENGTH, VALIDATOR_MATCH, VALIDATOR_EMAIL } from '../util/validators'
+import { useDispatch } from 'react-redux'
+import { signUp } from './userSlice'
+import { useHistory } from 'react-router-dom'
 
 interface AddUserProps {
 
 }
 
 const AddUser: React.FC<AddUserProps> = ({}) => {
+  const history = useHistory()
+  const dispatch = useDispatch()
+  
   const [ error, SetError ] = useState<string>()
   
    
@@ -44,19 +50,12 @@ const AddUser: React.FC<AddUserProps> = ({}) => {
       e.preventDefault()
       const userRef: any = projectFirestore.collection('users')
       // const checkUser = await userRef.doc(inputs.email.value).get()
-      // if (checkUser.exists) {
-        
-      //   SetError('user existed')
-      //   return
-      // } else {
-      try {
-        await userRef.doc(inputs.email.value).set({ name: inputs.name.value, email: inputs.email.value, likes: [] })
-        await auth.createUserWithEmailAndPassword(inputs.email.value, inputs.password.value)
-
-      } catch (e) {
-        SetError(e.message)
-      }
-
+      dispatch(signUp({ 
+        name: inputs.name.value, 
+        email: inputs.email.value, 
+        password: inputs.password.value 
+      }))
+      history.push('/login')
     }
 
   return (

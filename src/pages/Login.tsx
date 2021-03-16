@@ -1,5 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import Input from '../components/share/Input'
 import { auth, projectFirestore } from '../firebase/config'
 import { useForm } from '../hooks/useForm'
@@ -16,6 +17,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({}) => {
+  const history = useHistory()
   const dispatch = useDispatch();
   const user = useSelector(selectUser)
 
@@ -40,7 +42,7 @@ const Login: React.FC<LoginProps> = ({}) => {
     const formHandler = async (e:React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       dispatch(login({ email: inputs.email.value, password: inputs.password.value }))
-      
+      history.push('/home')
 
       // const userRef: any = projectFirestore.collection('users')
       // try {

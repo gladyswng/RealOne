@@ -11,10 +11,10 @@ interface IUser {
   // contacts: ISender[]
 }
 
-interface ISender {
+interface ISignUp {
   name: string
-    image: string
-    email: string
+  password: string
+  email: string
 }
 
 interface IUserUpdate {
@@ -24,9 +24,6 @@ interface IUserUpdate {
   oldImage?: string 
   likes: string[]
 }
-
-
-
 
 
 interface IAuth {
@@ -44,6 +41,11 @@ const initialState: UserState = {
   status: 'idle'
 }
 
+export const signUp = createAsyncThunk('user/signUp', async ({ name, email, password }: ISignUp) => {
+  const userRef: any = projectFirestore.collection('users')
+  await userRef.doc(email).set({ name, email, likes: [] })
+  await auth.createUserWithEmailAndPassword(email, password)
+})
 
 export const login = createAsyncThunk('user/login', 
   async (userCredential: IAuth) => {
