@@ -4,18 +4,12 @@ import { projectStorage, projectFirestore, timestamp } from '../firebase/config'
 export const useImageUpload = (image?: string) => {
 
   const [file, setFile] = useState<File>()
-  // TODO -TYPE ANY
+ 
   const [previewUrl, setPreviewUrl] = useState<string>()
 
   const [isValid, setIsValid] = useState(false)
   
-  // TODO - delete last preview image before change profile
 
-  // useEffect(async () => {
-  //   if (image && previewUrl) {
-  //     await projectStorage.refFromURL(previewUrl).delete()
-  //   }
-  // },[])
 
   useEffect(() => {
   if (image) {

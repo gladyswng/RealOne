@@ -13,6 +13,7 @@ import {
   selectUser,
 } from './userSlice';
 import { useHistory } from 'react-router-dom'
+import MultipleImageUpload from '../components/share/MultipleImageUpload'
 
 interface AddPostProps {
 
@@ -113,10 +114,9 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
           </div>
          
         </div>
-                <div className="">
-          <label className="block text-sm font-medium text-gray-700">
-          </label>
-          {previewUrl? <img src={previewUrl} className="overflow-hide h-60 object-cover w-full"/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5  ">
+        <div className="">
+      
+          {/* {previewUrl? <img src={previewUrl} className="overflow-hide h-60 object-cover w-full"/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5  ">
             <div className="space-y-1 text-center text-gray-400">
               <PictureIcon className="mx-auto h-12 w-12 fill-current"/>
               
@@ -135,7 +135,8 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
 
             </div>
           </div>
-          }
+          } */}
+          <MultipleImageUpload />
           
         </div>
         <div className="w-full text-center">
