@@ -7,6 +7,8 @@ import {
 } from './postSlice';
 import { selectUser } from './userSlice'
 import { ReactComponent as ProfileIcon } from '../svg/profile.svg'
+import { ReactComponent as SpinnerIcon } from '../svg/spinner.svg'
+import { RootState } from '../app/store';
 
 interface HomeProps {
 
@@ -16,6 +18,11 @@ const Home: React.FC<HomeProps> = ({}) => {
   const dispatch = useDispatch()
   const posts = useSelector(selectPost)
   const user = useSelector(selectUser) 
+
+  const status = useSelector((state: RootState)=> state.post.postListStatus) 
+  console.log(status)
+  const error = useSelector((state: RootState) => state.post.error)
+  console.log(error)
   useEffect(() => {
     dispatch(fetchPosts())
 
@@ -38,6 +45,8 @@ const Home: React.FC<HomeProps> = ({}) => {
 
         </div>
         <div className="col-start-2 col-span-2">
+          {error && <div className="border border-blue-500 p-4 text-blue-500 rounded-md text-sm">Error: {error}</div>}
+          {status==='pending' &&<SpinnerIcon className="animate-spin h-5 w-5 mr-3 text-blue-500"/>}
           
           {posts && posts.map(post => {
             return <div key={post.id}>

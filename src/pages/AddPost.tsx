@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { ReactComponent as PictureIcon } from '../svg/picture.svg'
 import { ReactComponent as AddIcon } from '../svg/add_filled.svg'
 import { ReactComponent as RemoveIcon } from '../svg/remove.svg'
+import { ReactComponent as SpinnerIcon } from '../svg/spinner.svg'
 import { useImageUpload } from '../hooks/useImageUpload'
 
 import { projectFirestore, timestamp } from '../firebase/config'
@@ -14,6 +15,7 @@ import {
 } from './userSlice';
 import { useHistory } from 'react-router-dom'
 import MultipleImageUpload from '../components/share/MultipleImageUpload'
+import { unwrapResult } from '@reduxjs/toolkit'
 
 interface AddPostProps {
 
@@ -30,13 +32,12 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
   const [ inputValue, setInputValue ] = useState<string>()
   const [ tagValue, setTagValue ] = useState<string>()
   const [ tagList, setTagList ] = useState<string[]>([])
-  // const [ loadedFile, setLoadedFile ] = useState<File>()
-  // const { url } = useStorage(loadedFile)
-  // useEffect(() => {
-  //   if (file) {
-  //     setLoadedFile(file)
-  //   }
-  // }, [file])
+
+  const [ requestStatus, setRequestStatus ] = useState('idle')
+
+
+
+
   const inputHandler = (e: React.FormEvent<HTMLTextAreaElement>) => {
     const target = e.target as HTMLTextAreaElement
     setInputValue(target.value)
@@ -60,25 +61,33 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
   const tagRemoveHandler = (tagItem: string) => {
     setTagList(tagList.filter(tag => tag !== tagItem))
   }
-
+  // submit and check status
+  
+  const canSend = [previewUrl, inputValue, user].every(Boolean) && requestStatus === 'idle'
   const submitHandler = async (e:React.MouseEvent) => {
     e.preventDefault()
-    if (previewUrl && inputValue && user ) {
+    if (canSend ) {
       
-      dispatch(addPost({ text: inputValue, image: previewUrl, author: user, tags: tagList }))
+      try {
+        setRequestStatus('pending')
+        const resultAction = await dispatch(addPost({ text: inputValue!, image: previewUrl, author: user!, tags: tagList }))
+        unwrapResult({payload: resultAction})
+        setInputValue('')
+      } catch (err) {
+        console.error('Failed to fetch posts: ', err)
+      } finally {
+        setRequestStatus('idle')
+      }
       // TODO - Loading before change sites
       // history.push('/home')
 
     } else {
       return
     }
-    // const postRef = projectFirestore.collection('posts')
-    // postRef.add({ text: inputValue, image: previewUrl, createdAt })
-    // const id = (await doc).id
-    // console.log(id)
-    
 
   }
+
+
   return (
     <div className="max-w-md mx-auto bg-white md:rounded-md shadow-md overflow-hidden my-6 ">
       <form className="" >
@@ -116,7 +125,7 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
         </div>
         <div className="">
       
-          {/* {previewUrl? <img src={previewUrl} className="overflow-hide h-60 object-cover w-full"/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5  ">
+          {previewUrl? <img src={previewUrl} className="overflow-hide h-60 object-cover w-full"/> : <div className="flex justify-center items-center h-60 px-6 pb-6 bg-gray-300 opacity-0.5  ">
             <div className="space-y-1 text-center text-gray-400">
               <PictureIcon className="mx-auto h-12 w-12 fill-current"/>
               
@@ -135,12 +144,15 @@ const AddPost: React.FC<AddPostProps> = ({}) => {
 
             </div>
           </div>
-          } */}
-          <MultipleImageUpload />
+          }
+          {/* <MultipleImageUpload /> */}
           
         </div>
         <div className="w-full text-center">
-          <button onClick={submitHandler} className="btn-blue bg-blue-500 my-4 mx-auto text-sm">ADD POST</button>
+                  <button onClick={submitHandler} className="btn-blue bg-blue-500 my-4 mx-auto text-sm flex">
+                      {requestStatus==='pending' &&<SpinnerIcon className="animate-spin h-5 w-5 mr-3"/>}
+                    ADD POST
+                  </button>
 
         </div>
 

@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk, RootState } from '../app/store';
 
 import { projectFirestore, projectStorage, timestamp, increment, arrayUnion, arrayRemove } from '../firebase/config'
@@ -38,19 +38,27 @@ interface IPost {
 interface PostState {
   posts: IPost[],
   topicPosts: IPost[],
-  postListStatus: 'idle' | 'pending' | 'fulfilled' | 'rejected'
+  postListStatus: 'idle' | 'pending' | 'fulfilled' | 'rejected',
+  error: string | null
 }
 
 
+const postsAdaptor = createEntityAdapter({})
 const initialState: PostState = {
   posts: [],
   topicPosts: [],
-  postListStatus: 'idle'
+  postListStatus: 'idle',
+  error: null
 };
+
 
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', 
   async () => {
+    // try {
+    // } catch (e) {
+    //   console.log(e)
+    // }
     const collectionRef = projectFirestore.collection('posts')
     // const collectionRef = await projectFirestore.collection('posts').get()
     
@@ -73,6 +81,8 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts',
 
     await Promise.all(result)
     return postList
+
+   
 
   }
 ) 
@@ -102,6 +112,7 @@ export const fetchTopicPosts = createAsyncThunk('posts/fetchTopicPosts',
 
     await Promise.all(result)
     return postList
+ 
 
   }
 ) 
@@ -115,9 +126,10 @@ export const addPost = createAsyncThunk('posts/addPost', async ({ text, author, 
   const postRef = projectFirestore.collection('posts')
   const userRef = projectFirestore.doc(`users/${author.email}`)
   
-  postRef.add({ text, image, createdAt, author: userRef, comments: 0, likes: 0, tags })
+  const newPost = { text, image, createdAt, author: userRef, comments: 0, likes: 0, tags }
+  postRef.add(newPost)
   
-
+  return {text, image, comments: 0, likes: 0, tags  }
     
 })
 
@@ -219,6 +231,7 @@ export const postSlice = createSlice({
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       
       state.postListStatus = 'fulfilled'
+      if (action.payload) 
       state.posts = action.payload
     })
     .addCase(fetchPosts.pending, (state, action) => {
@@ -226,6 +239,10 @@ export const postSlice = createSlice({
     })
     .addCase(fetchPosts.rejected, (state, action) => {
       state.postListStatus = 'rejected'
+      if (action.error.message) {
+
+        state.error = action.error.message
+      }
     })
     .addCase(deletePost.fulfilled, (state, action) => {
     
@@ -245,6 +262,10 @@ export const postSlice = createSlice({
     .addCase(removePostLike.fulfilled, (state, action) => {
       const postIndex = state.posts.findIndex(post => post.id === action.payload)
       state.posts[postIndex].likes -= 1
+    })
+    .addCase(addPost.fulfilled, (state, action) => {
+      // state.posts.push(action.payload)
+      console.log(action.payload)
     })
 
 

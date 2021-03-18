@@ -29,10 +29,14 @@ export const store = configureStore({
   },
 });
 
+// export middleware: Middleware<{}, any, Dispatch<AnyAction>>[]
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
   RootState,
   unknown,
+  
   Action<string>
+  
 >;
